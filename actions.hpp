@@ -2,6 +2,9 @@
 #include <string>
 #include <vector>
 
+using Time = float;
+using Damage = float;
+
 struct Rotation;
 struct RotationEntry;
 
@@ -10,15 +13,15 @@ namespace actions {
 struct Noop {
     std::string name() const { return "Noop"; }
     bool isGcd() const { return true; }
-    float startTime(const Rotation& rot, float gcdDelay) const;
-    float delayTime() const { return 0.5; }
+    Time startTime(const Rotation& rot, Time gcdDelay) const;
+    Time delayTime() const { return 0.5; }
 };
 
 struct DRG_TrueThrust {
     std::string name() const { return "True Thrust [DRG]"; }
     bool isGcd() const { return true; }
-    float startTime(const Rotation& rot, float gcdDelay) const;
-    float delayTime() const { return 0.1; /* TODO calc */ }
+    Time startTime(const Rotation& rot, Time gcdDelay) const;
+    Time delayTime() const { return 0.1; /* TODO calc */ }
 };
 
 using Action = std::variant<Noop, DRG_TrueThrust>;
@@ -30,7 +33,7 @@ using actions::Action;
 struct RotationEntry
 {
     Action action;
-    float time;
+    Time time;
 };
 
 struct Rotation
@@ -43,7 +46,7 @@ struct Rotation
 
 inline auto getName(const Action& action) { GET_FIELD(name); }
 
-inline auto getStartTime(const Rotation& rot, const Action& action, float gcdDelay)
+inline auto getStartTime(const Rotation& rot, const Action& action, Time gcdDelay)
 {
     return std::visit([&](const auto& a) { return a.startTime(rot, gcdDelay); }, action);
 }

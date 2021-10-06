@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
-float findLastGcdTime(const Rotation& rot)
+Time findLastGcdTime(const Rotation& rot)
 {
     auto rit = std::find_if(rot.entries.rbegin(), rot.entries.rend(), [](const auto& e) {
         return getIsGcd(e.action);
@@ -10,7 +10,7 @@ float findLastGcdTime(const Rotation& rot)
     return rit == rot.entries.rend() ? -10000 : rit->time;
 }
 
-float nextPossibleActionTime(const RotationEntry& entry)
+Time nextPossibleActionTime(const RotationEntry& entry)
 {
     return getDelayTime(entry.action) + entry.time;
 }
@@ -18,12 +18,12 @@ float nextPossibleActionTime(const RotationEntry& entry)
 namespace actions
 {
 
-float Noop::startTime(const Rotation& rot, float gcdDelay) const
+Time Noop::startTime(const Rotation& rot, Time gcdDelay) const
 {
     return rot.entries.size() * gcdDelay;
 }
 
-float DRG_TrueThrust::startTime(const Rotation& rot, float gcdDelay) const
+Time DRG_TrueThrust::startTime(const Rotation& rot, Time gcdDelay) const
 {
     if (rot.entries.empty())
         return 0;

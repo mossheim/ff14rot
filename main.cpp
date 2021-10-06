@@ -23,15 +23,15 @@ std::optional<Job> getJob(const std::string& jobName)
 }
 
 // Calculate damage up to `duration`
-float calculatePotentialDamage(const Rotation& rot, const Action& next, float startTime, float duration, float gcdDelay)
+Damage calculatePotentialDamage(const Rotation& rot, const Action& next, Time startTime, Time duration, Time gcdDelay)
 {
     return 0;
 }
 
-std::optional<RotationEntry> greedyChooseNextRotationEntry(const Rotation& rot, const Job& job, float duration, float gcdDelay)
+std::optional<RotationEntry> greedyChooseNextRotationEntry(const Rotation& rot, const Job& job, Time duration, Time gcdDelay)
 {
     RotationEntry result{Action{}, 0.0};
-    float maxDamage = -1;
+    Damage maxDamage = -1;
 
     for (const auto& action : job.actions)
     {
@@ -58,7 +58,7 @@ std::optional<RotationEntry> greedyChooseNextRotationEntry(const Rotation& rot, 
 }
 
 // Always pick the action that will maximize <total damage> / <start time of last action>
-Rotation greedyOptimalRotation(const Job& job, float duration, float gcdDelay)
+Rotation greedyOptimalRotation(const Job& job, Time duration, Time gcdDelay)
 {
     Rotation result;
 
@@ -70,12 +70,12 @@ Rotation greedyOptimalRotation(const Job& job, float duration, float gcdDelay)
     return result;
 }
 
-Rotation calculateOptimalRotation(const Job& job, float duration, float gcdDelay)
+Rotation calculateOptimalRotation(const Job& job, Time duration, Time gcdDelay)
 {
     return greedyOptimalRotation(job, duration, gcdDelay);
 }
 
-void printResult(const Rotation& rotation, float totalDamage)
+void printResult(const Rotation& rotation, Time totalDamage)
 {
     int counter = 0;
     std::cout << std::setprecision(2);
@@ -96,8 +96,8 @@ int main(int argc, char** argv)
     }
 
     std::string jobName = argv[1];
-    float duration = std::atof(argv[2]);
-    float gcdDelay = std::atof(argv[3]);
+    Time duration = std::atof(argv[2]);
+    Time gcdDelay = std::atof(argv[3]);
 
     if (auto maybeJob = getJob(jobName))
     {
