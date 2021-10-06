@@ -15,8 +15,7 @@ Time nextPossibleActionTime(const RotationEntry& entry)
     return getDelayTime(entry.action) + entry.time;
 }
 
-namespace actions
-{
+namespace actions {
 
 Time Noop::startTime(const Rotation& rot, Time gcdDelay) const
 {

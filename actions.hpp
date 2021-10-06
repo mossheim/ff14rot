@@ -1,7 +1,7 @@
 #pragma once
 
-#include <variant>
 #include <string>
+#include <variant>
 #include <vector>
 
 using Time = float;
@@ -32,21 +32,22 @@ using Action = std::variant<Noop, DRG_TrueThrust>;
 
 using actions::Action;
 
-struct RotationEntry
-{
+struct RotationEntry {
     Action action;
     Time time;
 };
 
-struct Rotation
-{
+struct Rotation {
     std::vector<RotationEntry> entries;
 };
 
 #define GET_FIELD(_fn_) \
-    return std::visit([](const auto& a) { return a. _fn_ (); }, action)
+    return std::visit([](const auto& a) { return a._fn_(); }, action)
 
-inline auto getName(const Action& action) { GET_FIELD(name); }
+inline auto getName(const Action& action)
+{
+    GET_FIELD(name);
+}
 
 inline auto getStartTime(const Rotation& rot, const Action& action, Time gcdDelay)
 {

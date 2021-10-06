@@ -1,9 +1,9 @@
-#include <iostream>
-#include <string>
-#include <vector>
-#include <optional>
-#include <tuple>
 #include <iomanip>
+#include <iostream>
+#include <optional>
+#include <string>
+#include <tuple>
+#include <vector>
 
 #include "actions.hpp"
 #include "jobstate.hpp"
@@ -18,7 +18,7 @@ struct Job {
 std::optional<Job> getJob(const std::string& jobName)
 {
     if (jobName == "DRG")
-        return Job{{actions::DRG_TrueThrust{}}};
+        return Job { { actions::DRG_TrueThrust {} } };
     else
         return {};
 }
@@ -28,8 +28,7 @@ Damage calculatePotentialDamage(const Rotation& rot, const Action& next, Time st
 {
     JobState state;
     Damage accumDmg = 0;
-    for (auto&& [action, time] : rot.entries)
-    {
+    for (auto&& [action, time] : rot.entries) {
         accumDmg += state.advanceTo(time);
         accumDmg += state.processAction(action);
     }
@@ -43,11 +42,10 @@ Damage calculatePotentialDamage(const Rotation& rot, const Action& next, Time st
 
 std::optional<RotationEntry> greedyChooseNextRotationEntry(const Rotation& rot, const Job& job, Time duration, Time gcdDelay)
 {
-    RotationEntry result{Action{}, 0.0};
+    RotationEntry result { Action {}, 0.0 };
     Damage maxDamage = -1;
 
-    for (const auto& action : job.actions)
-    {
+    for (const auto& action : job.actions) {
         std::cerr << "Action loop - " << getName(action) << std::endl;
         auto time = getStartTime(rot, action, gcdDelay);
         std::cerr << "Start time " << time << std::endl;
@@ -56,16 +54,15 @@ std::optional<RotationEntry> greedyChooseNextRotationEntry(const Rotation& rot, 
 
         auto damage = calculatePotentialDamage(rot, action, time, duration, gcdDelay);
         std::cerr << "Damage " << damage << std::endl;
-        if (damage > maxDamage)
-        {
+        if (damage > maxDamage) {
             maxDamage = damage;
-            result = {action, time};
+            result = { action, time };
         }
     }
 
     std::cerr << "Max damage " << maxDamage << std::endl;
     if (maxDamage >= 0)
-        return {result};
+        return { result };
     else
         return {};
 }
@@ -75,8 +72,7 @@ Rotation greedyOptimalRotation(const Job& job, Time duration, Time gcdDelay)
 {
     Rotation result;
 
-    while (auto nextEntry = greedyChooseNextRotationEntry(result, job, duration, gcdDelay))
-    {
+    while (auto nextEntry = greedyChooseNextRotationEntry(result, job, duration, gcdDelay)) {
         result.entries.push_back(std::move(*nextEntry));
     }
 
@@ -92,8 +88,7 @@ void printResult(const Rotation& rotation, Time totalDamage)
 {
     int counter = 0;
     std::cout << std::setprecision(2);
-    for (auto&& [action, time] : rotation.entries)
-    {
+    for (auto&& [action, time] : rotation.entries) {
         std::cout << counter++ << "\t" << time << "\t" << getName(action) << std::endl;
     }
     std::cout << "\nTotal Damage: " << totalDamage << "\n";
@@ -102,8 +97,7 @@ void printResult(const Rotation& rotation, Time totalDamage)
 int main(int argc, char** argv)
 {
     std::string usage = "Usage:\n  "s + argv[0] + " <job> <duration in seconds> <GCD delay>";
-    if (argc != 4)
-    {
+    if (argc != 4) {
         std::cout << usage << std::endl;
         return 1;
     }
@@ -112,22 +106,16 @@ int main(int argc, char** argv)
     Time duration = std::atof(argv[2]);
     Time gcdDelay = std::atof(argv[3]);
 
-    if (auto maybeJob = getJob(jobName))
-    {
-        if (duration > 0 && gcdDelay > 0)
-        {
+    if (auto maybeJob = getJob(jobName)) {
+        if (duration > 0 && gcdDelay > 0) {
             auto result = calculateOptimalRotation(*maybeJob, duration, gcdDelay);
-            auto totalDamage = calculatePotentialDamage(result, Action{}, duration, duration, gcdDelay);
+            auto totalDamage = calculatePotentialDamage(result, Action {}, duration, duration, gcdDelay);
             printResult(result, totalDamage);
-        }
-        else
-        {
+        } else {
             std::cout << "Duration and GCD delay must be > 0" << std::endl;
             return 1;
         }
-    }
-    else
-    {
+    } else {
         std::cout << "No job actions found for '" << jobName << "'." << std::endl;
         return 1;
     }
