@@ -87,7 +87,7 @@ Rotation calculateOptimalRotation(const Job& job, Time duration, Time gcdDelay)
 void printResult(const Rotation& rotation, Time totalDamage)
 {
     int counter = 0;
-    std::cout << std::setprecision(2);
+    std::cout << std::setprecision(2) << std::fixed;
     for (auto&& [action, time] : rotation.entries) {
         std::cout << counter++ << "\t" << time << "\t" << getName(action) << std::endl;
     }
