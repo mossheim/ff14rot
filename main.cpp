@@ -18,7 +18,7 @@ struct Job {
 std::optional<Job> getJob(const std::string& jobName)
 {
     if (jobName == "DRG")
-        return Job { { actions::DRG_TrueThrust {} } };
+        return Job { { actions::DRG_TrueThrust {}, actions::DRG_VorpalThrust {}, actions::DRG_LifeSurge {} } };
     else
         return {};
 }
