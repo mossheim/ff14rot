@@ -88,4 +88,33 @@ Time DRG_LifeSurge::startTime(const Rotation& rot, Time gcdDelay) const
 
 bool DRG_LifeSurge::combo(const JobState& jobState) const { return jobState.inCombo(); }
 
+// ---
+
+Time DRG_PiercingTalon::startTime(const Rotation& rot, Time gcdDelay) const
+{
+    return gcdStartTime(rot, gcdDelay);
+}
+
+Damage DRG_PiercingTalon::damage(const JobState& state) const
+{
+    return 150;
+}
+
+// ---
+
+Time DRG_Disembowel::startTime(const Rotation& rot, Time gcdDelay) const
+{
+    return gcdStartTime(rot, gcdDelay);
+}
+
+Damage DRG_Disembowel::damage(const JobState& state) const
+{
+    return state.lastGcd() == ACT_DRG_TrueThrust ? 320 : 150;
+}
+
+bool DRG_Disembowel::combo(const JobState& state) const
+{
+    return state.lastGcd() == ACT_DRG_TrueThrust;
+}
+
 } // namespace actions

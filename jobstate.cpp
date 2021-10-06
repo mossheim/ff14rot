@@ -22,6 +22,10 @@ Damage JobState::advanceTo(Time time)
 Damage JobState::processAction(const Action& action)
 {
     auto result = getDamage(action, *this);
+    // TODO do these stack?
+    if (effects_.count(ACT_DRG_Disembowel)) {
+        result *= 1.1;
+    }
     if (effects_.count(ACT_DRG_LifeSurge)) {
         result *= critMultiplier;
     }
@@ -39,7 +43,8 @@ void JobState::applyEffects(const Action& action)
 
     inCombo_ = getCombo(action, *this);
 
-    if (getName(action) == ACT_DRG_LifeSurge) {
+    if (getName(action) == ACT_DRG_LifeSurge)
         effects_[ACT_DRG_LifeSurge] = 5;
-    }
+    if (getName(action) == ACT_DRG_Disembowel)
+        effects_[ACT_DRG_Disembowel] = 30;
 }

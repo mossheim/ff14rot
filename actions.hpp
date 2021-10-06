@@ -15,6 +15,8 @@ struct JobState;
 #define ACT_DRG_TrueThrust "True Thrust [DRG]"
 #define ACT_DRG_VorpalThrust "Vorpal Thrust [DRG]"
 #define ACT_DRG_LifeSurge "Life Surge [DRG]"
+#define ACT_DRG_PiercingTalon "Piercing Talon [DRG]"
+#define ACT_DRG_Disembowel "Disembowel [DRG]"
 
 namespace actions {
 
@@ -54,7 +56,25 @@ struct DRG_LifeSurge {
     bool combo(const JobState& jobState) const;
 };
 
-using Action = std::variant<Noop, DRG_TrueThrust, DRG_VorpalThrust, DRG_LifeSurge>;
+struct DRG_PiercingTalon {
+    std::string name() const { return ACT_DRG_PiercingTalon; }
+    bool isGcd() const { return true; }
+    Time startTime(const Rotation& rot, Time gcdDelay) const;
+    Time delayTime() const { return 1; /* TODO calc */ }
+    Damage damage(const JobState& jobState) const;
+    bool combo(const JobState& jobState) const { return false; }
+};
+
+struct DRG_Disembowel {
+    std::string name() const { return ACT_DRG_Disembowel; }
+    bool isGcd() const { return true; }
+    Time startTime(const Rotation& rot, Time gcdDelay) const;
+    Time delayTime() const { return 1; /* TODO calc */ }
+    Damage damage(const JobState& jobState) const;
+    bool combo(const JobState& jobState) const;
+};
+
+using Action = std::variant<Noop, DRG_TrueThrust, DRG_VorpalThrust, DRG_LifeSurge, DRG_PiercingTalon>;
 
 } // namespace actions
 
