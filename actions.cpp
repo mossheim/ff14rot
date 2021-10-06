@@ -143,4 +143,10 @@ Time DRG_LanceCharge::startTime(const Rotation& rot, Time gcdDelay) const
 
 bool DRG_LanceCharge::combo(const JobState& jobState) const { return jobState.inCombo(); }
 
+// ---
+
+Time DRG_Jump::startTime(const Rotation& rot, Time gcdDelay) const { return cooldownStartTime(rot, 30, id()); }
+
+bool DRG_Jump::combo(const JobState& jobState) const { return jobState.inCombo(); }
+
 } // namespace actions
