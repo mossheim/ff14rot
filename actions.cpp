@@ -1,4 +1,5 @@
 #include "actions.hpp"
+#include "jobstate.hpp"
 
 #include <algorithm>
 
@@ -22,11 +23,21 @@ Time Noop::startTime(const Rotation& rot, Time gcdDelay) const
     return rot.entries.size() * gcdDelay;
 }
 
+Damage Noop::damage(const JobState& state) const
+{
+    return 0;
+}
+
 Time DRG_TrueThrust::startTime(const Rotation& rot, Time gcdDelay) const
 {
     if (rot.entries.empty())
         return 0;
     return std::max(findLastGcdTime(rot) + gcdDelay, nextPossibleActionTime(rot.entries.back()));
+}
+
+Damage DRG_TrueThrust::damage(const JobState& state) const
+{
+    return 290;
 }
 
 } // namespace actions

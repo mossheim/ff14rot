@@ -9,21 +9,27 @@ using Damage = float;
 
 struct Rotation;
 struct RotationEntry;
+struct JobState;
+
+#define ACT_NOOP "Noop"
+#define ACT_DRG_TrueThrust "True Thrust [DRG]"
 
 namespace actions {
 
 struct Noop {
-    std::string name() const { return "Noop"; }
+    std::string name() const { return ACT_NOOP; }
     bool isGcd() const { return true; }
     Time startTime(const Rotation& rot, Time gcdDelay) const;
     Time delayTime() const { return 0.5; }
+    Damage damage(const JobState& jobState) const;
 };
 
 struct DRG_TrueThrust {
-    std::string name() const { return "True Thrust [DRG]"; }
+    std::string name() const { return ACT_DRG_TrueThrust; }
     bool isGcd() const { return true; }
     Time startTime(const Rotation& rot, Time gcdDelay) const;
-    Time delayTime() const { return 0.1; /* TODO calc */ }
+    Time delayTime() const { return 1; /* TODO calc */ }
+    Damage damage(const JobState& jobState) const;
 };
 
 using Action = std::variant<Noop, DRG_TrueThrust>;
@@ -56,3 +62,8 @@ inline auto getStartTime(const Rotation& rot, const Action& action, Time gcdDela
 
 inline auto getIsGcd(const Action& action) { GET_FIELD(isGcd); }
 inline auto getDelayTime(const Action& action) { GET_FIELD(delayTime); }
+
+inline auto getDamage(const Action& action, const JobState& state)
+{
+    return std::visit([&](const auto& a) { return a.damage(state); }, action);
+}
