@@ -11,17 +11,33 @@ struct Rotation;
 struct RotationEntry;
 struct JobState;
 
-#define ACT_NOOP "Noop"
+#define ACT_Noop "Noop"
 #define ACT_DRG_TrueThrust "True Thrust [DRG]"
 #define ACT_DRG_VorpalThrust "Vorpal Thrust [DRG]"
 #define ACT_DRG_LifeSurge "Life Surge [DRG]"
 #define ACT_DRG_PiercingTalon "Piercing Talon [DRG]"
 #define ACT_DRG_Disembowel "Disembowel [DRG]"
+#define ACT_DRG_FullThrust "Full Thrust [DRG]"
+#define ACT_DRG_LanceCharge "Lance Charge [DRG]"
+
+enum ACTID {
+    ACTID_Noop,
+    ACTID_DRG_TrueThrust,
+    ACTID_DRG_VorpalThrust,
+    ACTID_DRG_LifeSurge,
+    ACTID_DRG_PiercingTalon,
+    ACTID_DRG_Disembowel,
+    ACTID_DRG_FullThrust,
+    ACTID_DRG_LanceCharge,
+
+    ACTID_MAX,
+};
 
 namespace actions {
 
 struct Noop {
-    std::string name() const { return ACT_NOOP; }
+    std::string name() const { return ACT_Noop; }
+    ACTID id() const { return ACTID_Noop; }
     bool isGcd() const { return true; }
     Time startTime(const Rotation& rot, Time gcdDelay) const;
     Time delayTime() const { return 0.5; }
@@ -31,6 +47,7 @@ struct Noop {
 
 struct DRG_TrueThrust {
     std::string name() const { return ACT_DRG_TrueThrust; }
+    ACTID id() const { return ACTID_DRG_TrueThrust; }
     bool isGcd() const { return true; }
     Time startTime(const Rotation& rot, Time gcdDelay) const;
     Time delayTime() const { return 1; /* TODO calc */ }
@@ -40,6 +57,7 @@ struct DRG_TrueThrust {
 
 struct DRG_VorpalThrust {
     std::string name() const { return ACT_DRG_VorpalThrust; }
+    ACTID id() const { return ACTID_DRG_VorpalThrust; }
     bool isGcd() const { return true; }
     Time startTime(const Rotation& rot, Time gcdDelay) const;
     Time delayTime() const { return 1; /* TODO calc */ }
@@ -49,6 +67,7 @@ struct DRG_VorpalThrust {
 
 struct DRG_LifeSurge {
     std::string name() const { return ACT_DRG_LifeSurge; }
+    ACTID id() const { return ACTID_DRG_LifeSurge; }
     bool isGcd() const { return false; }
     Time startTime(const Rotation& rot, Time gcdDelay) const;
     Time delayTime() const { return 1; /* TODO calc */ }
@@ -58,6 +77,7 @@ struct DRG_LifeSurge {
 
 struct DRG_PiercingTalon {
     std::string name() const { return ACT_DRG_PiercingTalon; }
+    ACTID id() const { return ACTID_DRG_PiercingTalon; }
     bool isGcd() const { return true; }
     Time startTime(const Rotation& rot, Time gcdDelay) const;
     Time delayTime() const { return 1; /* TODO calc */ }
@@ -67,6 +87,7 @@ struct DRG_PiercingTalon {
 
 struct DRG_Disembowel {
     std::string name() const { return ACT_DRG_Disembowel; }
+    ACTID id() const { return ACTID_DRG_Disembowel; }
     bool isGcd() const { return true; }
     Time startTime(const Rotation& rot, Time gcdDelay) const;
     Time delayTime() const { return 1; /* TODO calc */ }
@@ -74,7 +95,27 @@ struct DRG_Disembowel {
     bool combo(const JobState& jobState) const;
 };
 
-using Action = std::variant<Noop, DRG_TrueThrust, DRG_VorpalThrust, DRG_LifeSurge, DRG_PiercingTalon, DRG_Disembowel>;
+struct DRG_FullThrust {
+    std::string name() const { return ACT_DRG_FullThrust; }
+    ACTID id() const { return ACTID_DRG_FullThrust; }
+    bool isGcd() const { return true; }
+    Time startTime(const Rotation& rot, Time gcdDelay) const;
+    Time delayTime() const { return 1; /* TODO calc */ }
+    Damage damage(const JobState& jobState) const;
+    bool combo(const JobState& jobState) const;
+};
+
+struct DRG_LanceCharge {
+    std::string name() const { return ACT_DRG_LanceCharge; }
+    ACTID id() const { return ACTID_DRG_LanceCharge; }
+    bool isGcd() const { return false; }
+    Time startTime(const Rotation& rot, Time gcdDelay) const;
+    Time delayTime() const { return 1; /* TODO calc */ }
+    Damage damage(const JobState& jobState) const { return 0; };
+    bool combo(const JobState& jobState) const;
+};
+
+using Action = std::variant<Noop, DRG_TrueThrust, DRG_VorpalThrust, DRG_LifeSurge, DRG_PiercingTalon, DRG_Disembowel, DRG_FullThrust, DRG_LanceCharge>;
 
 } // namespace actions
 
@@ -96,6 +137,7 @@ inline auto getName(const Action& action)
 {
     GET_FIELD(name);
 }
+inline auto getId(const Action& action) { GET_FIELD(id); }
 
 inline auto getStartTime(const Rotation& rot, const Action& action, Time gcdDelay)
 {

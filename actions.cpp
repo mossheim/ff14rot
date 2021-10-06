@@ -11,10 +11,10 @@ Time findLastGcdTime(const Rotation& rot)
     return rit == rot.entries.rend() ? -10000 : rit->time;
 }
 
-Time findLastCdTime(const Rotation& rot, const std::string& actionName)
+Time findLastCdTime(const Rotation& rot, ACTID actionId)
 {
     auto rit = std::find_if(rot.entries.rbegin(), rot.entries.rend(), [&](const auto& e) {
-        return getName(e.action) == actionName;
+        return getId(e.action) == actionId;
     });
     return rit == rot.entries.rend() ? -10000 : rit->time;
 }
@@ -31,11 +31,11 @@ Time gcdStartTime(const Rotation& rot, Time gcdDelay)
     return std::max(findLastGcdTime(rot) + gcdDelay, nextPossibleActionTime(rot.entries.back()));
 }
 
-Time cooldownStartTime(const Rotation& rot, Time cdDelay, const std::string& actionName)
+Time cooldownStartTime(const Rotation& rot, Time cdDelay, ACTID actionId)
 {
     if (rot.entries.empty())
         return 0;
-    return std::max(findLastCdTime(rot, actionName) + cdDelay, nextPossibleActionTime(rot.entries.back()));
+    return std::max(findLastCdTime(rot, actionId) + cdDelay, nextPossibleActionTime(rot.entries.back()));
 }
 
 namespace actions {
@@ -71,19 +71,19 @@ Time DRG_VorpalThrust::startTime(const Rotation& rot, Time gcdDelay) const
 
 Damage DRG_VorpalThrust::damage(const JobState& state) const
 {
-    return state.lastGcd() == ACT_DRG_TrueThrust ? 350 : 140;
+    return state.lastGcd() == ACTID_DRG_TrueThrust ? 350 : 140;
 }
 
 bool DRG_VorpalThrust::combo(const JobState& state) const
 {
-    return state.lastGcd() == ACT_DRG_TrueThrust;
+    return state.lastGcd() == ACTID_DRG_TrueThrust;
 }
 
 // ---
 
 Time DRG_LifeSurge::startTime(const Rotation& rot, Time gcdDelay) const
 {
-    return cooldownStartTime(rot, 45, name());
+    return cooldownStartTime(rot, 45, id());
 }
 
 bool DRG_LifeSurge::combo(const JobState& jobState) const { return jobState.inCombo(); }
@@ -109,12 +109,38 @@ Time DRG_Disembowel::startTime(const Rotation& rot, Time gcdDelay) const
 
 Damage DRG_Disembowel::damage(const JobState& state) const
 {
-    return state.lastGcd() == ACT_DRG_TrueThrust ? 320 : 150;
+    return state.lastGcd() == ACTID_DRG_TrueThrust ? 320 : 150;
 }
 
 bool DRG_Disembowel::combo(const JobState& state) const
 {
-    return state.lastGcd() == ACT_DRG_TrueThrust;
+    return state.lastGcd() == ACTID_DRG_TrueThrust;
 }
+
+// ---
+
+Time DRG_FullThrust::startTime(const Rotation& rot, Time gcdDelay) const
+{
+    return gcdStartTime(rot, gcdDelay);
+}
+
+Damage DRG_FullThrust::damage(const JobState& state) const
+{
+    return combo(state) ? 530 : 100;
+}
+
+bool DRG_FullThrust::combo(const JobState& state) const
+{
+    return state.lastGcd() == ACTID_DRG_VorpalThrust && state.inCombo();
+}
+
+// ---
+
+Time DRG_LanceCharge::startTime(const Rotation& rot, Time gcdDelay) const
+{
+    return cooldownStartTime(rot, 90, id());
+}
+
+bool DRG_LanceCharge::combo(const JobState& jobState) const { return jobState.inCombo(); }
 
 } // namespace actions

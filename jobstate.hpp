@@ -10,13 +10,13 @@ struct JobState {
     Damage processAction(const Action& action);
 
     void applyEffects(const Action& action);
-    const std::string& lastGcd() const { return lastGcd_; }
+    ACTID lastGcd() const { return lastGcd_; }
     bool inCombo() const { return inCombo_; }
 
 private:
     Time currentTime_ = 0;
-    std::string lastGcd_;
+    ACTID lastGcd_ = ACTID_Noop;
     bool inCombo_ = false;
-    // name->time remaining
-    std::unordered_map<std::string, Time> effects_;
+    // id->time remaining
+    std::array<Time, ACTID_MAX> effects_ {};
 };

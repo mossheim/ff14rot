@@ -6,15 +6,10 @@ Damage JobState::advanceTo(Time time)
 {
     auto delta = time - currentTime_;
     currentTime_ = time;
-    std::vector<decltype(effects_)::iterator> toErase;
-    for (auto it = effects_.begin(); it != effects_.end(); ++it) {
-        it->second -= delta;
-        if (it->second <= 0)
-            toErase.push_back(it);
-    }
 
-    for (auto& it : toErase)
-        effects_.erase(it);
+    for (auto& eff : effects_) {
+        eff = std::max(eff - delta, 0.f);
+    }
 
     return 0;
 }
@@ -23,10 +18,13 @@ Damage JobState::processAction(const Action& action)
 {
     auto result = getDamage(action, *this);
     // TODO do these stack?
-    if (effects_.count(ACT_DRG_Disembowel)) {
+    if (effects_[ACTID_DRG_Disembowel] > 0) {
         result *= 1.1;
     }
-    if (effects_.count(ACT_DRG_LifeSurge)) {
+    if (effects_[ACTID_DRG_LanceCharge] > 0) {
+        result *= 1.15;
+    }
+    if (effects_[ACTID_DRG_LifeSurge] > 0) {
         result *= critMultiplier;
     }
 
@@ -36,15 +34,15 @@ Damage JobState::processAction(const Action& action)
 
 void JobState::applyEffects(const Action& action)
 {
-    if (getIsGcd(action)) {
-        lastGcd_ = getName(action);
-        effects_.erase(ACT_DRG_LifeSurge);
-    }
-
     inCombo_ = getCombo(action, *this);
 
-    if (getName(action) == ACT_DRG_LifeSurge)
-        effects_[ACT_DRG_LifeSurge] = 5;
-    if (getName(action) == ACT_DRG_Disembowel)
-        effects_[ACT_DRG_Disembowel] = 30;
+    if (getIsGcd(action)) {
+        lastGcd_ = getId(action);
+        if (lastGcd_ == ACTID_DRG_Disembowel)
+            effects_[ACTID_DRG_Disembowel] = 30;
+        effects_[ACTID_DRG_LifeSurge] = 0;
+    } else if (getId(action) == ACTID_DRG_LifeSurge)
+        effects_[ACTID_DRG_LifeSurge] = 5;
+    else if (getId(action) == ACTID_DRG_LanceCharge)
+        effects_[ACTID_DRG_LanceCharge] = 20;
 }
