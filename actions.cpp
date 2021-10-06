@@ -149,4 +149,45 @@ Time DRG_Jump::startTime(const Rotation& rot, Time gcdDelay) const { return cool
 
 bool DRG_Jump::combo(const JobState& jobState) const { return jobState.inCombo(); }
 
+// ---
+
+Time DRG_DoomSpike::startTime(const Rotation& rot, Time gcdDelay) const
+{
+    return gcdStartTime(rot, gcdDelay);
+}
+
+Damage DRG_DoomSpike::damage(const JobState& state) const
+{
+    return 170;
+}
+
+// ---
+
+Time DRG_SpineshatterDive::startTime(const Rotation& rot, Time gcdDelay) const { return cooldownStartTime(rot, 60, id()); }
+
+bool DRG_SpineshatterDive::combo(const JobState& jobState) const { return jobState.inCombo(); }
+
+// ---
+
+Time DRG_ChaosThrust::startTime(const Rotation& rot, Time gcdDelay) const
+{
+    return gcdStartTime(rot, gcdDelay);
+}
+
+Damage DRG_ChaosThrust::damage(const JobState& state) const
+{
+    return combo(state) ? 330 : 140;
+}
+
+bool DRG_ChaosThrust::combo(const JobState& state) const
+{
+    return state.lastGcd() == ACTID_DRG_Disembowel && state.inCombo();
+}
+
+// ---
+
+Time DRG_DragonfireDive::startTime(const Rotation& rot, Time gcdDelay) const { return cooldownStartTime(rot, 120, id()); }
+
+bool DRG_DragonfireDive::combo(const JobState& jobState) const { return jobState.inCombo(); }
+
 } // namespace actions

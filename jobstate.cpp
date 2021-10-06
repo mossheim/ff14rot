@@ -1,5 +1,7 @@
 #include "jobstate.hpp"
 
+#include <cmath>
+
 constexpr float critMultiplier = 1.2;
 
 Damage JobState::advanceTo(Time time)
@@ -7,11 +9,18 @@ Damage JobState::advanceTo(Time time)
     auto delta = time - currentTime_;
     currentTime_ = time;
 
+    Damage totalDmg = 0;
     for (auto& eff : effects_) {
-        eff = std::max(eff - delta, 0.f);
+        if (&eff == &effects_[ACTID_DRG_ChaosThrust]) {
+            auto newTime = std::max(eff - delta, 0.f);
+            for (auto chaosGrid = std::ceilf(newTime / 3.f); chaosGrid < eff; chaosGrid += 3)
+                totalDmg += 50;
+            eff = newTime;
+        } else
+            eff = std::max(eff - delta, 0.f);
     }
 
-    return 0;
+    return totalDmg;
 }
 
 Damage JobState::processAction(const Action& action)
@@ -40,6 +49,8 @@ void JobState::applyEffects(const Action& action)
         lastGcd_ = getId(action);
         if (lastGcd_ == ACTID_DRG_Disembowel)
             effects_[ACTID_DRG_Disembowel] = 30;
+        else if (lastGcd_ == ACTID_DRG_ChaosThrust && inCombo_)
+            effects_[ACTID_DRG_ChaosThrust] = 24;
         effects_[ACTID_DRG_LifeSurge] = 0;
     } else if (getId(action) == ACTID_DRG_LifeSurge)
         effects_[ACTID_DRG_LifeSurge] = 5;

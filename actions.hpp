@@ -20,6 +20,10 @@ struct JobState;
 #define ACT_DRG_FullThrust "Full Thrust [DRG]"
 #define ACT_DRG_LanceCharge "Lance Charge [DRG]"
 #define ACT_DRG_Jump "Jump [DRG]"
+#define ACT_DRG_DoomSpike "Doom Spike [DRG]"
+#define ACT_DRG_SpineshatterDive "Spineshatter Dive [DRG]"
+#define ACT_DRG_ChaosThrust "Chaos Thrust [DRG]"
+#define ACT_DRG_DragonfireDive "Dragonfire Dive [DRG]"
 
 enum ACTID {
     ACTID_Noop,
@@ -31,6 +35,10 @@ enum ACTID {
     ACTID_DRG_FullThrust,
     ACTID_DRG_LanceCharge,
     ACTID_DRG_Jump,
+    ACTID_DRG_DoomSpike,
+    ACTID_DRG_SpineshatterDive,
+    ACTID_DRG_ChaosThrust,
+    ACTID_DRG_DragonfireDive,
 
     ACTID_MAX,
 };
@@ -127,8 +135,48 @@ struct DRG_Jump {
     bool combo(const JobState& jobState) const;
 };
 
+struct DRG_DoomSpike {
+    std::string name() const { return ACT_DRG_DoomSpike; }
+    ACTID id() const { return ACTID_DRG_DoomSpike; }
+    bool isGcd() const { return true; }
+    Time startTime(const Rotation& rot, Time gcdDelay) const;
+    Time delayTime() const { return 1; /* TODO calc */ }
+    Damage damage(const JobState& jobState) const;
+    bool combo(const JobState& jobState) const { return false; }
+};
+
+struct DRG_SpineshatterDive {
+    std::string name() const { return ACT_DRG_SpineshatterDive; }
+    ACTID id() const { return ACTID_DRG_SpineshatterDive; }
+    bool isGcd() const { return false; }
+    Time startTime(const Rotation& rot, Time gcdDelay) const;
+    Time delayTime() const { return 1; /* TODO calc */ }
+    Damage damage(const JobState& jobState) const { return 240; };
+    bool combo(const JobState& jobState) const;
+};
+
+struct DRG_ChaosThrust {
+    std::string name() const { return ACT_DRG_ChaosThrust; }
+    ACTID id() const { return ACTID_DRG_ChaosThrust; }
+    bool isGcd() const { return true; }
+    Time startTime(const Rotation& rot, Time gcdDelay) const;
+    Time delayTime() const { return 1; /* TODO calc */ }
+    Damage damage(const JobState& jobState) const;
+    bool combo(const JobState& jobState) const;
+};
+
+struct DRG_DragonfireDive {
+    std::string name() const { return ACT_DRG_DragonfireDive; }
+    ACTID id() const { return ACTID_DRG_DragonfireDive; }
+    bool isGcd() const { return false; }
+    Time startTime(const Rotation& rot, Time gcdDelay) const;
+    Time delayTime() const { return 1; /* TODO calc */ }
+    Damage damage(const JobState& jobState) const { return 380; };
+    bool combo(const JobState& jobState) const;
+};
+
 using Action = std::variant<Noop, DRG_TrueThrust, DRG_VorpalThrust, DRG_LifeSurge, DRG_PiercingTalon, DRG_Disembowel,
-    DRG_FullThrust, DRG_LanceCharge, DRG_Jump>;
+    DRG_FullThrust, DRG_LanceCharge, DRG_Jump, DRG_DoomSpike, DRG_SpineshatterDive, DRG_ChaosThrust, DRG_DragonfireDive>;
 
 } // namespace actions
 
