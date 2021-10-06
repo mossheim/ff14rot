@@ -74,7 +74,7 @@ struct DRG_Disembowel {
     bool combo(const JobState& jobState) const;
 };
 
-using Action = std::variant<Noop, DRG_TrueThrust, DRG_VorpalThrust, DRG_LifeSurge, DRG_PiercingTalon>;
+using Action = std::variant<Noop, DRG_TrueThrust, DRG_VorpalThrust, DRG_LifeSurge, DRG_PiercingTalon, DRG_Disembowel>;
 
 } // namespace actions
 

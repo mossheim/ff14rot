@@ -79,9 +79,68 @@ Rotation greedyOptimalRotation(const Job& job, Time duration, Time gcdDelay)
     return result;
 }
 
+// Check every possible combination
+Rotation exhaustiveOptimalRotation(const Job& job, Time duration, Time gcdDelay)
+{
+    Rotation workingRot;
+    Damage maxDamage = -1;
+    Rotation bestRot;
+
+    std::vector<decltype(job.actions)::const_iterator> iters;
+
+    if (job.actions.empty())
+        return bestRot;
+
+    iters.push_back(job.actions.begin());
+    while (!iters.empty()) {
+        // check if can fit in move
+        // if so calculate damage for current thing
+        //    if best so far, note it
+        //    add new iter
+        // else increment current iter and pop until successful or empty
+
+        /*
+        std::cerr << "Loop: rotation = ";
+        for (auto& [a, t] : workingRot.entries)
+            std::cerr << getName(a) << ", ";
+        std::cerr << getName(*iters.back()) << std::endl;
+        */
+
+        auto nextTime = getStartTime(workingRot, *iters.back(), gcdDelay);
+        //std::cerr << "Next time = " << nextTime << std::endl;
+        if (nextTime < duration) {
+            auto damage = calculatePotentialDamage(workingRot, *iters.back(), nextTime, duration, gcdDelay);
+            //std::cerr << "Damage = " << damage << std::endl;
+
+            workingRot.entries.push_back(RotationEntry { *iters.back(), nextTime });
+            iters.push_back(job.actions.begin());
+
+            if (damage > maxDamage) {
+                //std::cerr << "New best" << std::endl;
+                maxDamage = damage;
+                bestRot = workingRot;
+            }
+        } else {
+            //std::cerr << "Popping" << std::endl;
+            ++iters.back();
+            while (iters.back() == job.actions.end()) {
+                iters.pop_back();
+                if (iters.empty())
+                    break;
+                if (!workingRot.entries.empty())
+                    workingRot.entries.pop_back();
+                ++iters.back();
+            }
+        }
+    }
+
+    return bestRot;
+}
+
 Rotation calculateOptimalRotation(const Job& job, Time duration, Time gcdDelay)
 {
-    return greedyOptimalRotation(job, duration, gcdDelay);
+    return exhaustiveOptimalRotation(job, duration, gcdDelay);
+    //return greedyOptimalRotation(job, duration, gcdDelay);
 }
 
 void printResult(const Rotation& rotation, Time totalDamage)
