@@ -67,7 +67,7 @@ std::optional<RotationEntry> greedyChooseNextRotationEntry(const Rotation& rot, 
         return {};
 }
 
-// Always pick the action that will maximize <total damage> / <start time of last action>
+// Always pick the action that will maximize <total damage> / <total duration>
 Rotation greedyOptimalRotation(const Job& job, Time duration, Time gcdDelay)
 {
     Rotation result;
