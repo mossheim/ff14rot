@@ -6,6 +6,7 @@
 #include <iomanip>
 
 #include "actions.hpp"
+#include "jobstate.hpp"
 
 using namespace std::literals;
 
@@ -25,7 +26,19 @@ std::optional<Job> getJob(const std::string& jobName)
 // Calculate damage up to `duration`
 Damage calculatePotentialDamage(const Rotation& rot, const Action& next, Time startTime, Time duration, Time gcdDelay)
 {
-    return 0;
+    JobState state;
+    Damage accumDmg = 0;
+    for (auto&& [action, time] : rot.entries)
+    {
+        accumDmg += state.advanceTo(time);
+        accumDmg += state.processAction(action);
+    }
+
+    accumDmg += state.advanceTo(startTime);
+    accumDmg += state.processAction(next);
+    accumDmg += state.advanceTo(duration);
+
+    return accumDmg;
 }
 
 std::optional<RotationEntry> greedyChooseNextRotationEntry(const Rotation& rot, const Job& job, Time duration, Time gcdDelay)
