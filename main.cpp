@@ -200,11 +200,10 @@ Rotation pruningOptimalRotation(const Job& job, Time duration, Time gcdDelay)
 
     using RotStatePair = std::pair<Rotation, JobState>;
     struct RotStatePairGreater {
-        bool operator()(const RotStatePair& lhs, const RotStatePair& rhs) const {
-            auto lhsDmg = lhs.first.entries.size() == 0 ? 0 :
-            lhs.second.damage() / lhs.first.entries.back().time;
-            auto rhsDmg = rhs.first.entries.size() == 0 ? 0 :
-            rhs.second.damage() / rhs.first.entries.back().time;
+        bool operator()(const RotStatePair& lhs, const RotStatePair& rhs) const
+        {
+            auto lhsDmg = lhs.first.entries.size() == 0 ? 0 : lhs.second.damage() / lhs.first.entries.back().time;
+            auto rhsDmg = rhs.first.entries.size() == 0 ? 0 : rhs.second.damage() / rhs.first.entries.back().time;
             if (lhsDmg == rhsDmg)
                 return lhs.first.entries.size() > rhs.first.entries.size();
             else
@@ -219,30 +218,25 @@ Rotation pruningOptimalRotation(const Job& job, Time duration, Time gcdDelay)
 
     pq1.emplace();
     int generationNumber = 0;
-    while (!pq1.empty())
-    {
+    while (!pq1.empty()) {
         generationNumber++;
         std::cerr << "Generation " << generationNumber << " - pq1 size = " << pq1.size() << std::endl;
-        while (!pq1.empty())
-        {
+        while (!pq1.empty()) {
             // Check damage against best
             auto& [rot, state] = pq1.top();
-            if (state.damage() > maxDamage)
-            {
+            if (state.damage() > maxDamage) {
                 // std::cerr << "New best: damage = " << state.damage() << std::endl;
                 bestRot = rot;
                 maxDamage = state.damage();
             }
 
-            for (auto& action : job.actions)
-            {
+            for (auto& action : job.actions) {
                 // Put all time-viable candidates in pq2 ensuring it doesn't grow too large
                 auto newRot = rot;
                 auto newState = state;
                 auto time = getStartTime(newRot, action, gcdDelay);
-                if (time < duration)
-                {
-                    newRot.entries.push_back({action, time});
+                if (time < duration) {
+                    newRot.entries.push_back({ action, time });
                     newState.advanceTo(time);
                     newState.processAction(action);
                     pq2.emplace(std::move(newRot), std::move(newState));
