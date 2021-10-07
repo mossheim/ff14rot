@@ -68,6 +68,15 @@ Damage calculatePotentialDamage(const Rotation& rot, const Action& next, Time st
     return accumDmg;
 }
 
+auto calculatePotentialDamageIncremental(const Action& next, Time startTime, Time duration, Time gcdDelay, JobState state)
+{
+    state.advanceTo(startTime);
+    state.processAction(next);
+    auto resultState = state;
+    state.advanceTo(duration);
+    return std::make_pair(state.damage(), resultState);
+}
+
 std::optional<RotationEntry> greedyChooseNextRotationEntry(const Rotation& rot, const Job& job, Time duration, Time gcdDelay)
 {
     RotationEntry result { Action {}, 0.0 };
@@ -115,11 +124,13 @@ Rotation exhaustiveOptimalRotation(const Job& job, Time duration, Time gcdDelay)
     Rotation bestRot;
 
     std::vector<decltype(job.actions)::const_iterator> iters;
+    std::vector<JobState> states;
 
     if (job.actions.empty())
         return bestRot;
 
     iters.push_back(job.actions.begin());
+    states.emplace_back();
     while (!iters.empty()) {
         // check if can fit in move
         // if so calculate damage for current thing
@@ -137,7 +148,7 @@ Rotation exhaustiveOptimalRotation(const Job& job, Time duration, Time gcdDelay)
         auto nextTime = getStartTime(workingRot, *iters.back(), gcdDelay);
         //std::cerr << "Next time = " << nextTime << std::endl;
         if (nextTime < duration) {
-            auto damage = calculatePotentialDamage(workingRot, *iters.back(), nextTime, duration, gcdDelay);
+            auto [damage, state] = calculatePotentialDamageIncremental(*iters.back(), nextTime, duration, gcdDelay, states.back());
             //std::cerr << "Damage = " << damage << std::endl;
             /*
             if (duration - nextTime < 1.5)
@@ -156,6 +167,7 @@ Rotation exhaustiveOptimalRotation(const Job& job, Time duration, Time gcdDelay)
 
             workingRot.entries.push_back(RotationEntry { *iters.back(), nextTime });
             iters.push_back(job.actions.begin());
+            states.push_back(state);
 
             if (damage > maxDamage) {
                 maxDamage = damage;
@@ -166,6 +178,7 @@ Rotation exhaustiveOptimalRotation(const Job& job, Time duration, Time gcdDelay)
             ++iters.back();
             while (iters.back() == job.actions.end()) {
                 iters.pop_back();
+                states.pop_back();
                 if (iters.empty())
                     break;
                 if (!workingRot.entries.empty())

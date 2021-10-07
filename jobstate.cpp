@@ -20,6 +20,7 @@ Damage JobState::advanceTo(Time time)
             eff = std::max(eff - delta, 0.f);
     }
 
+    damage_ += totalDmg;
     return totalDmg;
 }
 
@@ -38,6 +39,7 @@ Damage JobState::processAction(const Action& action)
     }
 
     applyEffects(action);
+    damage_ += result;
     return result;
 }
 

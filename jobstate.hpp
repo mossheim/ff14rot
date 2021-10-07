@@ -12,9 +12,11 @@ struct JobState {
     void applyEffects(const Action& action);
     ACTID lastGcd() const { return lastGcd_; }
     bool inCombo() const { return inCombo_; }
+    Damage damage() const { return damage_; }
 
 private:
     Time currentTime_ = 0;
+    Damage damage_ = 0;
     ACTID lastGcd_ = ACTID_Noop;
     bool inCombo_ = false;
     // id->time remaining
