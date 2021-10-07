@@ -26,18 +26,44 @@ std::optional<Job> getJob(const std::string& jobName)
 }
 
 // Calculate damage up to `duration`
-Damage calculatePotentialDamage(const Rotation& rot, const Action& next, Time startTime, Time duration, Time gcdDelay)
+Damage calculatePotentialDamage(const Rotation& rot, const Action& next, Time startTime, Time duration, Time gcdDelay, bool verbose = false)
 {
+    if (verbose) {
+        std::cerr << "CPDmg" << std::endl;
+        for (auto& [a, t] : rot.entries)
+            std::cerr << "(" << getName(a) << ", " << t << "), ";
+        std::cerr << "(" << getName(next) << ", " << startTime << ")" << std::endl;
+        std::cerr << "duration=" << duration << "; gcdDelay=" << gcdDelay << std::endl;
+    }
+
     JobState state;
     Damage accumDmg = 0;
     for (auto&& [action, time] : rot.entries) {
+        if (verbose)
+            std::cerr << "action=" << getName(action) << "; time=" << time;
         accumDmg += state.advanceTo(time);
+        if (verbose)
+            std::cerr << "; accumAdv=" << accumDmg;
         accumDmg += state.processAction(action);
+        if (verbose)
+            std::cerr << "; accumProc=" << accumDmg << std::endl;
     }
 
+    if (verbose)
+        std::cerr << "action=" << getName(next) << "; time=" << startTime;
     accumDmg += state.advanceTo(startTime);
+    if (verbose)
+        std::cerr << "; accumAdv=" << accumDmg;
     accumDmg += state.processAction(next);
+    if (verbose) {
+        std::cerr << "; accumProc=" << accumDmg << std::endl;
+        std::cerr << "; time=" << duration;
+    }
     accumDmg += state.advanceTo(duration);
+    if (verbose) {
+        std::cerr << "; accumAdv=" << accumDmg << std::endl;
+        std::cerr << "Result=" << accumDmg << std::endl;
+    }
 
     return accumDmg;
 }
@@ -113,12 +139,23 @@ Rotation exhaustiveOptimalRotation(const Job& job, Time duration, Time gcdDelay)
         if (nextTime < duration) {
             auto damage = calculatePotentialDamage(workingRot, *iters.back(), nextTime, duration, gcdDelay);
             //std::cerr << "Damage = " << damage << std::endl;
+            /*
+            if (duration - nextTime < 1.5)
+                std::cerr << "DMG=" << damage << "\n";
+                */
+            if (damage > 1400 && duration - nextTime < gcdDelay) {
+                //calculatePotentialDamage(workingRot, *iters.back(), nextTime, duration, gcdDelay, true);
+                std::cerr << "New good DMG=" << damage;
+                std::cerr << "; NextTime=" << nextTime << "; Loop: rotation = ";
+                for (auto& [a, t] : workingRot.entries)
+                    std::cerr << getName(a) << ", ";
+                std::cerr << getName(*iters.back()) << std::endl;
+            }
 
             workingRot.entries.push_back(RotationEntry { *iters.back(), nextTime });
             iters.push_back(job.actions.begin());
 
             if (damage > maxDamage) {
-                //std::cerr << "New best" << std::endl;
                 maxDamage = damage;
                 bestRot = workingRot;
             }
@@ -170,7 +207,7 @@ int main(int argc, char** argv)
     if (auto maybeJob = getJob(jobName)) {
         if (duration > 0 && gcdDelay > 0) {
             auto result = calculateOptimalRotation(*maybeJob, duration, gcdDelay);
-            auto totalDamage = calculatePotentialDamage(result, Action {}, duration, duration, gcdDelay);
+            auto totalDamage = calculatePotentialDamage(result, { actions::Noop {} }, duration, duration, gcdDelay, true);
             printResult(result, totalDamage);
         } else {
             std::cout << "Duration and GCD delay must be > 0" << std::endl;
