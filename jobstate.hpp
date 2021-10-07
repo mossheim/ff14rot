@@ -18,5 +18,11 @@ private:
     ACTID lastGcd_ = ACTID_Noop;
     bool inCombo_ = false;
     // id->time remaining
-    std::array<Time, ACTID_MAX> effects_ {};
+    std::array<Time, ACTID_EFFECT_MAX> effects_ {};
 };
+
+/*
+template<size_t N>
+struct R;
+R<sizeof(JobState)> r;
+*/

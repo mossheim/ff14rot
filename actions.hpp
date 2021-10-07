@@ -26,18 +26,21 @@ struct JobState;
 #define ACT_DRG_DragonfireDive "Dragonfire Dive [DRG]"
 
 enum ACTID {
-    ACTID_Noop,
+    ACTID_DRG_ChaosThrust,
+    ACTID_DRG_Disembowel,
+    ACTID_DRG_LanceCharge,
+    ACTID_DRG_LifeSurge,
+
+    ACTID_EFFECT_MAX,
+
+    ACTID_Noop = ACTID_EFFECT_MAX,
     ACTID_DRG_TrueThrust,
     ACTID_DRG_VorpalThrust,
-    ACTID_DRG_LifeSurge,
     ACTID_DRG_PiercingTalon,
-    ACTID_DRG_Disembowel,
     ACTID_DRG_FullThrust,
-    ACTID_DRG_LanceCharge,
     ACTID_DRG_Jump,
     ACTID_DRG_DoomSpike,
     ACTID_DRG_SpineshatterDive,
-    ACTID_DRG_ChaosThrust,
     ACTID_DRG_DragonfireDive,
 
     ACTID_MAX,
