@@ -20,6 +20,11 @@
 #define ACT_DRG_SpineshatterDive "Spineshatter Dive [DRG]"
 #define ACT_DRG_ChaosThrust "Chaos Thrust [DRG]"
 #define ACT_DRG_DragonfireDive "Dragonfire Dive [DRG]"
+#define ACT_DRG_BattleLitany "Battle Litany [DRG]"
+#define ACT_DRG_BloodOfTheDragon "Blood of the Dragon [DRG]"
+#define ACT_DRG_FangAndClaw "Fang and Claw [DRG]"
+#define ACT_DRG_WheelingThrust "Wheeling Thrust [DRG]"
+#define ACT_DRG_Gierskogul "Gierskogul [DRG]"
 
 Time gcdStartTime(const Rotation& rot, Time gcdDelay);
 Time cooldownStartTime(const Rotation& rot, Time cdDelay, ACTID actionId);
@@ -135,9 +140,55 @@ struct DRG_DragonfireDive : Ogcd<ACTID_DRG_DragonfireDive, 120>, FixedDmg<380> {
     Time delayTime() const { return 1; /* TODO calc */ }
 };
 
+// --- DRG 52-60
+
+struct DRG_BattleLitany : Ogcd<ACTID_DRG_BattleLitany, 180>, FixedDmg<0> {
+    std::string name() const { return ACT_DRG_BattleLitany; }
+    Time delayTime() const { return 1; /* TODO calc */ }
+};
+
+struct DRG_BloodOfTheDragon : Ogcd<ACTID_DRG_BloodOfTheDragon, 25>, FixedDmg<0> {
+    std::string name() const { return ACT_DRG_BloodOfTheDragon; }
+    Time delayTime() const { return 1; /* TODO calc */ }
+};
+
+struct DRG_FangAndClaw : Gcd<ACTID_DRG_FangAndClaw>, ComboDmg<ACTID_DRG_FullThrust, -999, 380> {
+    std::string name() const { return ACT_DRG_FangAndClaw; }
+    Time delayTime() const { return 1; /* TODO calc */ }
+};
+
+struct DRG_WheelingThrust : Gcd<ACTID_DRG_WheelingThrust>, ComboDmg<ACTID_DRG_ChaosThrust, -999, 380> {
+    std::string name() const { return ACT_DRG_WheelingThrust; }
+    Time delayTime() const { return 1; /* TODO calc */ }
+};
+
+struct DRG_Gierskogul : Ogcd<ACTID_DRG_Gierskogul, 30>, FixedDmg<300> {
+    std::string name() const { return ACT_DRG_Gierskogul; }
+    Time delayTime() const { return 1; /* TODO calc */ }
+};
+
+// -------
+
 struct Action {
-    using Impl = std::variant<Noop, DRG_TrueThrust, DRG_VorpalThrust, DRG_LifeSurge, DRG_PiercingTalon, DRG_Disembowel,
-        DRG_FullThrust, DRG_LanceCharge, DRG_Jump, DRG_DoomSpike, DRG_SpineshatterDive, DRG_ChaosThrust, DRG_DragonfireDive>;
+    using Impl = std::variant<
+        DRG_TrueThrust,
+        DRG_VorpalThrust,
+        DRG_LifeSurge,
+        DRG_PiercingTalon,
+        DRG_Disembowel,
+        DRG_FullThrust,
+        DRG_LanceCharge,
+        DRG_Jump,
+        DRG_DoomSpike,
+        DRG_SpineshatterDive,
+        DRG_ChaosThrust,
+        DRG_DragonfireDive,
+        DRG_BattleLitany,
+        DRG_BloodOfTheDragon,
+        DRG_WheelingThrust,
+        DRG_FangAndClaw,
+        DRG_Gierskogul,
+        Noop>;
     Impl v;
 
     Action(const Impl& impl)

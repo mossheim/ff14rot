@@ -18,7 +18,7 @@ struct Job {
 
 std::optional<Job> getJob(const std::string& jobName)
 {
-    if (jobName == "DRG")
+    if (jobName == "DRG50")
         return Job { {
             { actions::DRG_TrueThrust {} },
             { actions::DRG_VorpalThrust {} },
@@ -32,6 +32,26 @@ std::optional<Job> getJob(const std::string& jobName)
             { actions::DRG_SpineshatterDive {} },
             { actions::DRG_ChaosThrust {} },
             { actions::DRG_DragonfireDive {} },
+        } };
+    else if (jobName == "DRG60")
+        return Job { {
+            { actions::DRG_TrueThrust {} },
+            { actions::DRG_VorpalThrust {} },
+            { actions::DRG_LifeSurge {} },
+            { actions::DRG_PiercingTalon {} },
+            { actions::DRG_Disembowel {} },
+            { actions::DRG_FullThrust {} },
+            { actions::DRG_LanceCharge {} },
+            { actions::DRG_Jump {} },
+            { actions::DRG_DoomSpike {} },
+            { actions::DRG_SpineshatterDive {} },
+            { actions::DRG_ChaosThrust {} },
+            { actions::DRG_DragonfireDive {} },
+            { actions::DRG_BattleLitany {} },
+            { actions::DRG_BloodOfTheDragon {} },
+            { actions::DRG_WheelingThrust {} },
+            { actions::DRG_FangAndClaw {} },
+            { actions::DRG_Gierskogul {} },
         } };
     else
         return {};
