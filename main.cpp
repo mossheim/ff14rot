@@ -143,6 +143,7 @@ Rotation exhaustiveOptimalRotation(const Job& job, Time duration, Time gcdDelay)
             if (duration - nextTime < 1.5)
                 std::cerr << "DMG=" << damage << "\n";
                 */
+            /*
             if (damage > 1400 && duration - nextTime < gcdDelay) {
                 //calculatePotentialDamage(workingRot, *iters.back(), nextTime, duration, gcdDelay, true);
                 std::cerr << "New good DMG=" << damage;
@@ -151,6 +152,7 @@ Rotation exhaustiveOptimalRotation(const Job& job, Time duration, Time gcdDelay)
                     std::cerr << getName(a) << ", ";
                 std::cerr << getName(*iters.back()) << std::endl;
             }
+            */
 
             workingRot.entries.push_back(RotationEntry { *iters.back(), nextTime });
             iters.push_back(job.actions.begin());
@@ -207,7 +209,7 @@ int main(int argc, char** argv)
     if (auto maybeJob = getJob(jobName)) {
         if (duration > 0 && gcdDelay > 0) {
             auto result = calculateOptimalRotation(*maybeJob, duration, gcdDelay);
-            auto totalDamage = calculatePotentialDamage(result, { actions::Noop {} }, duration, duration, gcdDelay, true);
+            auto totalDamage = calculatePotentialDamage(result, { actions::Noop {} }, duration, duration, gcdDelay, false);
             printResult(result, totalDamage);
         } else {
             std::cout << "Duration and GCD delay must be > 0" << std::endl;
