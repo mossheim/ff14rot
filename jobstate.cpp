@@ -1,4 +1,5 @@
 #include "jobstate.hpp"
+#include "actions.hpp"
 
 #include <cmath>
 

@@ -8,4 +8,5 @@ add_executable(FF14Rot
     actions.cpp
     jobstate.hpp
     jobstate.cpp
+    types.hpp
     main.cpp)

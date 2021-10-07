@@ -19,9 +19,20 @@ struct Job {
 std::optional<Job> getJob(const std::string& jobName)
 {
     if (jobName == "DRG")
-        return Job { { actions::DRG_TrueThrust {}, actions::DRG_VorpalThrust {}, actions::DRG_LifeSurge {},
-            actions::DRG_PiercingTalon {}, actions::DRG_Disembowel {}, actions::DRG_FullThrust {},
-            actions::DRG_LanceCharge {}, actions::DRG_Jump {}, actions::DRG_DoomSpike {}, actions::DRG_SpineshatterDive {}, actions::DRG_ChaosThrust {}, actions::DRG_DragonfireDive {} } };
+        return Job { {
+            { actions::DRG_TrueThrust {} },
+            { actions::DRG_VorpalThrust {} },
+            { actions::DRG_LifeSurge {} },
+            { actions::DRG_PiercingTalon {} },
+            { actions::DRG_Disembowel {} },
+            { actions::DRG_FullThrust {} },
+            { actions::DRG_LanceCharge {} },
+            { actions::DRG_Jump {} },
+            { actions::DRG_DoomSpike {} },
+            { actions::DRG_SpineshatterDive {} },
+            { actions::DRG_ChaosThrust {} },
+            { actions::DRG_DragonfireDive {} },
+        } };
     else
         return {};
 }
@@ -80,7 +91,7 @@ auto calculatePotentialDamageIncremental(const Action& next, Time startTime, Tim
 
 std::optional<RotationEntry> greedyChooseNextRotationEntry(const Rotation& rot, const Job& job, Time duration, Time gcdDelay)
 {
-    RotationEntry result { Action {}, 0.0 };
+    RotationEntry result { { actions::Noop {} }, 0.0 };
     Damage maxDamage = -1;
 
     for (const auto& action : job.actions) {

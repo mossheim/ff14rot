@@ -4,12 +4,8 @@
 #include <variant>
 #include <vector>
 
-using Time = float;
-using Damage = float;
-
-struct Rotation;
-struct RotationEntry;
-struct JobState;
+#include "jobstate.hpp"
+#include "types.hpp"
 
 #define ACT_Noop "Noop"
 #define ACT_DRG_TrueThrust "True Thrust [DRG]"
@@ -25,161 +21,130 @@ struct JobState;
 #define ACT_DRG_ChaosThrust "Chaos Thrust [DRG]"
 #define ACT_DRG_DragonfireDive "Dragonfire Dive [DRG]"
 
-enum ACTID {
-    ACTID_DRG_ChaosThrust,
-    ACTID_DRG_Disembowel,
-    ACTID_DRG_LanceCharge,
-    ACTID_DRG_LifeSurge,
-
-    ACTID_EFFECT_MAX,
-
-    ACTID_Noop = ACTID_EFFECT_MAX,
-    ACTID_DRG_TrueThrust,
-    ACTID_DRG_VorpalThrust,
-    ACTID_DRG_PiercingTalon,
-    ACTID_DRG_FullThrust,
-    ACTID_DRG_Jump,
-    ACTID_DRG_DoomSpike,
-    ACTID_DRG_SpineshatterDive,
-    ACTID_DRG_DragonfireDive,
-
-    ACTID_MAX,
-};
+Time gcdStartTime(const Rotation& rot, Time gcdDelay);
+Time cooldownStartTime(const Rotation& rot, Time cdDelay, ACTID actionId);
 
 namespace actions {
 
-struct Noop {
+template <ACTID ID>
+struct Gcd {
+    ACTID id() const { return ID; }
+    bool isGcd() const { return true; }
+    Time startTime(const Rotation& rot, Time gcdDelay) const
+    {
+        return gcdStartTime(rot, gcdDelay);
+    }
+};
+
+template <ACTID ID, int CDTIME>
+struct Ogcd {
+    ACTID id() const { return ID; }
+    bool isGcd() const { return false; }
+    Time startTime(const Rotation& rot, Time gcdDelay) const
+    {
+        return cooldownStartTime(rot, CDTIME, ID);
+    }
+    bool combo(const JobState& jobState) const { return jobState.inCombo(); }
+};
+
+template <int DMG>
+struct FixedDmg {
+    Damage damage(const JobState&) const { return DMG; }
+};
+
+template <ACTID ID, int DMG_BARE, int DMG_COMBO>
+struct ComboDmg {
+    bool combo(const JobState& jobState) const
+    {
+        return jobState.inCombo() && jobState.lastGcd() == ID;
+    }
+    Damage damage(const JobState& state) const
+    {
+        return combo(state) ? DMG_COMBO : DMG_BARE;
+    }
+};
+
+// ------
+
+struct Noop : Gcd<ACTID_Noop>, FixedDmg<0> {
     std::string name() const { return ACT_Noop; }
-    ACTID id() const { return ACTID_Noop; }
-    bool isGcd() const { return true; }
-    Time startTime(const Rotation& rot, Time gcdDelay) const;
     Time delayTime() const { return 0.5; }
-    Damage damage(const JobState& jobState) const;
     bool combo(const JobState& jobState) const { return false; }
 };
 
-struct DRG_TrueThrust {
+struct DRG_TrueThrust : Gcd<ACTID_DRG_TrueThrust>, FixedDmg<290> {
     std::string name() const { return ACT_DRG_TrueThrust; }
-    ACTID id() const { return ACTID_DRG_TrueThrust; }
-    bool isGcd() const { return true; }
-    Time startTime(const Rotation& rot, Time gcdDelay) const;
     Time delayTime() const { return 1; /* TODO calc */ }
-    Damage damage(const JobState& jobState) const;
-    bool combo(const JobState& jobState) const { return false; }
+    bool combo(const JobState& jobState) const { return true; }
 };
 
-struct DRG_VorpalThrust {
+struct DRG_VorpalThrust : Gcd<ACTID_DRG_VorpalThrust>, ComboDmg<ACTID_DRG_TrueThrust, 140, 350> {
     std::string name() const { return ACT_DRG_VorpalThrust; }
-    ACTID id() const { return ACTID_DRG_VorpalThrust; }
-    bool isGcd() const { return true; }
-    Time startTime(const Rotation& rot, Time gcdDelay) const;
     Time delayTime() const { return 1; /* TODO calc */ }
-    Damage damage(const JobState& jobState) const;
-    bool combo(const JobState& jobState) const;
 };
 
-struct DRG_LifeSurge {
+struct DRG_LifeSurge : Ogcd<ACTID_DRG_LifeSurge, 45>, FixedDmg<0> {
     std::string name() const { return ACT_DRG_LifeSurge; }
-    ACTID id() const { return ACTID_DRG_LifeSurge; }
-    bool isGcd() const { return false; }
-    Time startTime(const Rotation& rot, Time gcdDelay) const;
     Time delayTime() const { return 1; /* TODO calc */ }
-    Damage damage(const JobState& jobState) const { return 0; }
-    bool combo(const JobState& jobState) const;
 };
 
-struct DRG_PiercingTalon {
+struct DRG_PiercingTalon : Gcd<ACTID_DRG_PiercingTalon>, FixedDmg<170> {
     std::string name() const { return ACT_DRG_PiercingTalon; }
-    ACTID id() const { return ACTID_DRG_PiercingTalon; }
-    bool isGcd() const { return true; }
-    Time startTime(const Rotation& rot, Time gcdDelay) const;
     Time delayTime() const { return 1; /* TODO calc */ }
-    Damage damage(const JobState& jobState) const;
     bool combo(const JobState& jobState) const { return false; }
 };
 
-struct DRG_Disembowel {
+struct DRG_Disembowel : Gcd<ACTID_DRG_Disembowel>, ComboDmg<ACTID_DRG_TrueThrust, 150, 320> {
     std::string name() const { return ACT_DRG_Disembowel; }
-    ACTID id() const { return ACTID_DRG_Disembowel; }
-    bool isGcd() const { return true; }
-    Time startTime(const Rotation& rot, Time gcdDelay) const;
     Time delayTime() const { return 1; /* TODO calc */ }
-    Damage damage(const JobState& jobState) const;
-    bool combo(const JobState& jobState) const;
 };
 
-struct DRG_FullThrust {
+struct DRG_FullThrust : Gcd<ACTID_DRG_FullThrust>, ComboDmg<ACTID_DRG_VorpalThrust, 100, 530> {
     std::string name() const { return ACT_DRG_FullThrust; }
-    ACTID id() const { return ACTID_DRG_FullThrust; }
-    bool isGcd() const { return true; }
-    Time startTime(const Rotation& rot, Time gcdDelay) const;
     Time delayTime() const { return 1; /* TODO calc */ }
-    Damage damage(const JobState& jobState) const;
-    bool combo(const JobState& jobState) const;
 };
 
-struct DRG_LanceCharge {
+struct DRG_LanceCharge : Ogcd<ACTID_DRG_LanceCharge, 90>, FixedDmg<0> {
     std::string name() const { return ACT_DRG_LanceCharge; }
-    ACTID id() const { return ACTID_DRG_LanceCharge; }
-    bool isGcd() const { return false; }
-    Time startTime(const Rotation& rot, Time gcdDelay) const;
     Time delayTime() const { return 1; /* TODO calc */ }
-    Damage damage(const JobState& jobState) const { return 0; };
-    bool combo(const JobState& jobState) const;
 };
 
-struct DRG_Jump {
+struct DRG_Jump : Ogcd<ACTID_DRG_Jump, 30>, FixedDmg<310> {
     std::string name() const { return ACT_DRG_Jump; }
-    ACTID id() const { return ACTID_DRG_Jump; }
-    bool isGcd() const { return false; }
-    Time startTime(const Rotation& rot, Time gcdDelay) const;
     Time delayTime() const { return 1; /* TODO calc */ }
-    Damage damage(const JobState& jobState) const { return 310; };
-    bool combo(const JobState& jobState) const;
 };
 
-struct DRG_DoomSpike {
+struct DRG_DoomSpike : Gcd<ACTID_DRG_DoomSpike>, FixedDmg<170> {
     std::string name() const { return ACT_DRG_DoomSpike; }
-    ACTID id() const { return ACTID_DRG_DoomSpike; }
-    bool isGcd() const { return true; }
-    Time startTime(const Rotation& rot, Time gcdDelay) const;
     Time delayTime() const { return 1; /* TODO calc */ }
-    Damage damage(const JobState& jobState) const;
     bool combo(const JobState& jobState) const { return false; }
 };
 
-struct DRG_SpineshatterDive {
+struct DRG_SpineshatterDive : Ogcd<ACTID_DRG_SpineshatterDive, 60>, FixedDmg<240> {
     std::string name() const { return ACT_DRG_SpineshatterDive; }
-    ACTID id() const { return ACTID_DRG_SpineshatterDive; }
-    bool isGcd() const { return false; }
-    Time startTime(const Rotation& rot, Time gcdDelay) const;
     Time delayTime() const { return 1; /* TODO calc */ }
-    Damage damage(const JobState& jobState) const { return 240; };
-    bool combo(const JobState& jobState) const;
 };
 
-struct DRG_ChaosThrust {
+struct DRG_ChaosThrust : Gcd<ACTID_DRG_ChaosThrust>, ComboDmg<ACTID_DRG_Disembowel, 140, 330> {
     std::string name() const { return ACT_DRG_ChaosThrust; }
-    ACTID id() const { return ACTID_DRG_ChaosThrust; }
-    bool isGcd() const { return true; }
-    Time startTime(const Rotation& rot, Time gcdDelay) const;
     Time delayTime() const { return 1; /* TODO calc */ }
-    Damage damage(const JobState& jobState) const;
-    bool combo(const JobState& jobState) const;
 };
 
-struct DRG_DragonfireDive {
+struct DRG_DragonfireDive : Ogcd<ACTID_DRG_DragonfireDive, 120>, FixedDmg<380> {
     std::string name() const { return ACT_DRG_DragonfireDive; }
-    ACTID id() const { return ACTID_DRG_DragonfireDive; }
-    bool isGcd() const { return false; }
-    Time startTime(const Rotation& rot, Time gcdDelay) const;
     Time delayTime() const { return 1; /* TODO calc */ }
-    Damage damage(const JobState& jobState) const { return 380; };
-    bool combo(const JobState& jobState) const;
 };
 
-using Action = std::variant<Noop, DRG_TrueThrust, DRG_VorpalThrust, DRG_LifeSurge, DRG_PiercingTalon, DRG_Disembowel,
-    DRG_FullThrust, DRG_LanceCharge, DRG_Jump, DRG_DoomSpike, DRG_SpineshatterDive, DRG_ChaosThrust, DRG_DragonfireDive>;
+struct Action {
+    using Impl = std::variant<Noop, DRG_TrueThrust, DRG_VorpalThrust, DRG_LifeSurge, DRG_PiercingTalon, DRG_Disembowel,
+        DRG_FullThrust, DRG_LanceCharge, DRG_Jump, DRG_DoomSpike, DRG_SpineshatterDive, DRG_ChaosThrust, DRG_DragonfireDive>;
+    Impl v;
+
+    Action(const Impl& impl)
+        : v(impl)
+    {
+    }
+};
 
 } // namespace actions
 
@@ -195,7 +160,7 @@ struct Rotation {
 };
 
 #define GET_FIELD(_fn_) \
-    return std::visit([](const auto& a) { return a._fn_(); }, action)
+    return std::visit([](const auto& a) { return a._fn_(); }, action.v)
 
 inline auto getName(const Action& action)
 {
@@ -205,7 +170,7 @@ inline auto getId(const Action& action) { GET_FIELD(id); }
 
 inline auto getStartTime(const Rotation& rot, const Action& action, Time gcdDelay)
 {
-    return std::visit([&](const auto& a) { return a.startTime(rot, gcdDelay); }, action);
+    return std::visit([&](const auto& a) { return a.startTime(rot, gcdDelay); }, action.v);
 }
 
 inline auto getIsGcd(const Action& action) { GET_FIELD(isGcd); }
@@ -213,10 +178,10 @@ inline auto getDelayTime(const Action& action) { GET_FIELD(delayTime); }
 
 inline auto getDamage(const Action& action, const JobState& state)
 {
-    return std::visit([&](const auto& a) { return a.damage(state); }, action);
+    return std::visit([&](const auto& a) { return a.damage(state); }, action.v);
 }
 
 inline auto getCombo(const Action& action, const JobState& state)
 {
-    return std::visit([&](const auto& a) { return a.combo(state); }, action);
+    return std::visit([&](const auto& a) { return a.combo(state); }, action.v);
 }

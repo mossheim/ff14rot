@@ -1,9 +1,10 @@
 #pragma once
 
-#include "actions.hpp"
-
+#include <array>
 #include <unordered_map>
 #include <vector>
+
+#include "types.hpp"
 
 struct JobState {
     Damage advanceTo(Time time);
