@@ -13,7 +13,7 @@ Damage JobState::advanceTo(Time time)
     for (auto& eff : effects_) {
         if (&eff == &effects_[ACTID_DRG_ChaosThrust]) {
             auto newTime = std::max(eff - delta, 0.f);
-            for (auto chaosGrid = std::ceilf(newTime / 3.f); chaosGrid < eff; chaosGrid += 3)
+            for (auto chaosGrid = std::ceilf(newTime / 3.f) * 3; chaosGrid < eff; chaosGrid += 3)
                 totalDmg += 50;
             eff = newTime;
         } else
@@ -33,7 +33,7 @@ Damage JobState::processAction(const Action& action)
     if (effects_[ACTID_DRG_LanceCharge] > 0) {
         result *= 1.15;
     }
-    if (effects_[ACTID_DRG_LifeSurge] > 0) {
+    if (effects_[ACTID_DRG_LifeSurge] > 0 && getIsGcd(action)) {
         result *= critMultiplier;
     }
 
