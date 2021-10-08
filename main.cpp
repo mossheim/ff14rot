@@ -225,10 +225,8 @@ Rotation exhaustiveOptimalRotation(const Job& job, Time duration, Time gcdDelay)
 
 // Does a faster search by pruning low-performing candidates after each generation.
 // The criterion to maximize is damage/time with overall sequence time as a secondary criterion.
-Rotation pruningOptimalRotation(const Job& job, Time duration, Time gcdDelay)
+Rotation pruningOptimalRotation(const Job& job, Time duration, Time gcdDelay, int maxCandidates)
 {
-    constexpr int maxCandidates = 5000;
-
     using RotStatePair = std::pair<Rotation, JobState>;
     struct RotStatePairGreater {
         bool operator()(const RotStatePair& lhs, const RotStatePair& rhs) const
@@ -285,9 +283,9 @@ Rotation pruningOptimalRotation(const Job& job, Time duration, Time gcdDelay)
     return bestRot;
 }
 
-Rotation calculateOptimalRotation(const Job& job, Time duration, Time gcdDelay)
+Rotation calculateOptimalRotation(const Job& job, Time duration, Time gcdDelay, int maxCandidates)
 {
-    return pruningOptimalRotation(job, duration, gcdDelay);
+    return pruningOptimalRotation(job, duration, gcdDelay, maxCandidates);
     //return exhaustiveOptimalRotation(job, duration, gcdDelay);
     //return greedyOptimalRotation(job, duration, gcdDelay);
 }
@@ -304,8 +302,8 @@ void printResult(const Rotation& rotation, Time totalDamage)
 
 int main(int argc, char** argv)
 {
-    std::string usage = "Usage:\n  "s + argv[0] + " <job> <duration in seconds> <GCD delay>";
-    if (argc != 4) {
+    std::string usage = "Usage:\n  "s + argv[0] + " <job> <duration in seconds> <GCD delay> [<num candidates>]";
+    if (argc != 4 && argc != 5) {
         std::cout << usage << std::endl;
         return 1;
     }
@@ -313,10 +311,13 @@ int main(int argc, char** argv)
     std::string jobName = argv[1];
     Time duration = std::atof(argv[2]);
     Time gcdDelay = std::atof(argv[3]);
+    int maxCandidates = 5000;
+    if (argc == 5)
+        maxCandidates = std::atoi(argv[4]);
 
     if (auto maybeJob = getJob(jobName)) {
         if (duration > 0 && gcdDelay > 0) {
-            auto result = calculateOptimalRotation(*maybeJob, duration, gcdDelay);
+            auto result = calculateOptimalRotation(*maybeJob, duration, gcdDelay, maxCandidates);
             auto totalDamage = calculatePotentialDamage(result, { actions::Noop {} }, duration, duration, gcdDelay, false);
             printResult(result, totalDamage);
         } else {
