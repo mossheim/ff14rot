@@ -84,5 +84,5 @@ void JobState::applyEffects(const Action& action)
     else if (id == ACTID_DRG_BattleLitany)
         effects_[ACTID_DRG_BattleLitany] = 20;
     else if (id == ACTID_DRG_BloodOfTheDragon)
-        effects_[ACTID_DRG_BloodOfTheDragon] = 30;
+        effects_[ACTID_DRG_BloodOfTheDragon] = 20;
 }
