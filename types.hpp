@@ -20,6 +20,16 @@ enum ACTID {
     ACTID_DRG_BattleLitany,
     ACTID_DRG_BloodOfTheDragon,
 
+    ACTID_GNB_KeenEdge,
+    ACTID_GNB_NoMercy,
+    ACTID_GNB_BrutalShell,
+    ACTID_GNB_SonicBreak,
+    ACTID_GNB_GnashingFang,
+    ACTID_GNB_SavageClaw,
+    ACTID_GNB_WickedTalon,
+    ACTID_GNB_BowShock,
+    ACTID_GNB_Bloodfest,
+
     ACTID_EFFECT_MAX,
 
     ACTID_Noop = ACTID_EFFECT_MAX,
@@ -34,6 +44,12 @@ enum ACTID {
     ACTID_DRG_FangAndClaw,
     ACTID_DRG_WheelingThrust,
     ACTID_DRG_Gierskogul,
+
+    ACTID_GNB_SolidBarrel,
+    ACTID_GNB_BurstStrike,
+    ACTID_GNB_RoughDivide,
+    ACTID_GNB_Continuation,
+    ACTID_GNB_BlastingZone,
 
     ACTID_MAX,
 };

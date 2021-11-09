@@ -53,6 +53,26 @@ std::optional<Job> getJob(const std::string& jobName)
             { actions::DRG_FangAndClaw {} },
             { actions::DRG_Gierskogul {} },
         } };
+    else if (jobName == "GNB80_Single")
+        return Job { {
+            /*
+            { actions::DamageBuffPotion30 {} },
+            { actions::GNB_KeenEdge {} },
+            { actions::GNB_NoMercy {} },
+            { actions::GNB_BrutalShell {} },
+            { actions::GNB_SolidBarrel {} },
+            { actions::GNB_BurstStrike {} },
+            { actions::GNB_SonicBreak {} },
+            { actions::GNB_RoughDivide {} },
+            { actions::GNB_GnashingFang {} },
+            { actions::GNB_SavageClaw {} },
+            { actions::GNB_WickedTalon {} },
+            { actions::GNB_BowShock {} },
+            { actions::GNB_Continuation {} },
+            { actions::GNB_Bloodfest {} },
+            { actions::GNB_BlastingZone {} },
+            */
+        } };
     else
         return {};
 }

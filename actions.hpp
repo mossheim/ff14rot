@@ -8,6 +8,9 @@
 #include "types.hpp"
 
 #define ACT_Noop "Noop"
+
+#define ACT_DamageBuffPotion30 "8% Damage Buff Potion 30s"
+
 #define ACT_DRG_TrueThrust "True Thrust [DRG]"
 #define ACT_DRG_VorpalThrust "Vorpal Thrust [DRG]"
 #define ACT_DRG_LifeSurge "Life Surge [DRG]"
@@ -25,6 +28,21 @@
 #define ACT_DRG_FangAndClaw "Fang and Claw [DRG]"
 #define ACT_DRG_WheelingThrust "Wheeling Thrust [DRG]"
 #define ACT_DRG_Gierskogul "Gierskogul [DRG]"
+
+#define ACT_GNB_KeenEdge "Keen Edge [GNB]"
+#define ACT_GNB_NoMercy "No Mercy [GNB]"
+#define ACT_GNB_BrutalShell "Brutal Shell [GNB]"
+#define ACT_GNB_SolidBarrel "Solid Barrel [GNB]"
+#define ACT_GNB_BurstStrike "Burst Strike [GNB]"
+#define ACT_GNB_SonicBreak "Sonic Break [GNB]"
+#define ACT_GNB_RoughDivide "Rough Divide [GNB]"
+#define ACT_GNB_GnashingFang "Gnashing Fang [GNB]"
+#define ACT_GNB_SavageClaw "Savage Claw [GNB]"
+#define ACT_GNB_WickedTalon "Wicked Talon [GNB]"
+#define ACT_GNB_BowShock "Bow Shock [GNB]"
+#define ACT_GNB_Continuation "Continuation [GNB]"
+#define ACT_GNB_Bloodfest "Bloodfest [GNB]"
+#define ACT_GNB_BlastingZone "Blasting Zone [GNB]"
 
 Time gcdStartTime(const Rotation& rot, Time gcdDelay);
 Time cooldownStartTime(const Rotation& rot, Time cdDelay, ACTID actionId);
@@ -167,6 +185,13 @@ struct DRG_Gierskogul : Ogcd<ACTID_DRG_Gierskogul, 30>, FixedDmg<300> {
     Time delayTime() const { return 1; /* TODO calc */ }
 };
 
+// --- GNB 1-50
+// --- GNB 51-60
+// --- GNB 61-70
+// --- GNB 71-80
+
+
+
 // -------
 
 struct Action {
@@ -188,6 +213,23 @@ struct Action {
         DRG_WheelingThrust,
         DRG_FangAndClaw,
         DRG_Gierskogul,
+        /*
+        GNB_KeenEdge,
+        GNB_NoMercy,
+        GNB_BrutalShell,
+        GNB_SolidBarrel,
+        GNB_BurstStrike,
+        GNB_SonicBreak,
+        GNB_RoughDivide,
+        GNB_GnashingFang,
+        GNB_SavageClaw,
+        GNB_WickedTalon,
+        GNB_BowShock,
+        GNB_Continuation,
+        GNB_Bloodfest,
+        GNB_BlastingZone,
+        DamageBuffPotion30,
+        */
         Noop>;
     Impl v;
 
