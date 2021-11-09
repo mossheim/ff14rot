@@ -53,20 +53,19 @@ Time multiCooldownStartTime(const Rotation& rot, Time cdDelay, int charges, ACTI
 
     const auto nextPossTime = nextPossibleActionTime(rot.entries.back());
 
-    auto rit = entries.rbegin();
-    for (auto i = 0; i < charges; ++i) {
-        rit = std::find_if(rit, entries.rend(), [&](const auto& e) {
-            return getId(e.action) == actionId;
-        });
+    auto it = std::find_if(entries.begin(), entries.end(), [&](const auto& e) {
+        return getId(e.action) == actionId;
+    });
+    if (it == entries.end())
+        return nextPossTime;
 
-        if (rit == entries.rend())
-            return nextPossTime;
+    auto nUses = std::count_if(it + 1, entries.end(), [&](const auto& e) {
+        return getId(e.action) == actionId;
+    });
 
-        ++rit;
-    }
+    nUses++;
 
-    --rit;
-    return std::max(rit->time + charges * cdDelay, nextPossTime);
+    return std::max(it->time + (nUses - charges + 1) * cdDelay, nextPossTime);
 }
 
 namespace actions {
