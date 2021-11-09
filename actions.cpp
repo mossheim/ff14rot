@@ -32,6 +32,11 @@ Time gcdStartTime(const Rotation& rot, Time gcdDelay)
     return std::max(findLastGcdTime(rot) + gcdDelay, nextPossibleActionTime(rot.entries.back()));
 }
 
+Time gcdExtendedCooldownStartTime(const Rotation& rot, Time gcdDelay, Time cdDelay, ACTID actionId)
+{
+    return std::max(gcdStartTime(rot, gcdDelay), cooldownStartTime(rot, cdDelay, actionId));
+}
+
 Time cooldownStartTime(const Rotation& rot, Time cdDelay, ACTID actionId)
 {
     if (rot.entries.empty())
