@@ -44,6 +44,78 @@ Time cooldownStartTime(const Rotation& rot, Time cdDelay, ACTID actionId)
     return std::max(findLastCdTime(rot, actionId) + cdDelay, nextPossibleActionTime(rot.entries.back()));
 }
 
+// For things like rough divide that have a 30s cooldown with 2 charges
+Time multiCooldownStartTime(const Rotation& rot, Time cdDelay, int charges, ACTID actionId)
+{
+    const auto& entries = rot.entries;
+    if (entries.empty())
+        return 0;
+
+    const auto nextPossTime = nextPossibleActionTime(rot.entries.back());
+
+    auto rit = entries.rbegin();
+    for (auto i = 0; i < charges; ++i) {
+        rit = std::find_if(rit, entries.rend(), [&](const auto& e) {
+            return getId(e.action) == actionId;
+        });
+
+        if (rit == entries.rend())
+            return nextPossTime;
+
+        ++rit;
+    }
+
+    --rit;
+    return std::max(rit->time + charges * cdDelay, nextPossTime);
+}
+
 namespace actions {
+
+// GNB damage calcs
+
+Damage GNB_BrutalShell::damage(const JobState& js) const
+{
+    return js.effectTime(ACTID_GNB_KeenEdge) > 0 ? 300 : -1000;
+}
+
+Damage GNB_SolidBarrel::damage(const JobState& js) const
+{
+    return js.effectTime(ACTID_GNB_BrutalShell) > 0 ? 400 : -1000;
+}
+
+Damage GNB_BurstStrike::damage(const JobState& js) const
+{
+    return js.effectTime(ACTID_GNB_Cartridge1) > 0 ? 500 : -1000;
+}
+
+Damage GNB_GnashingFang::damage(const JobState& js) const
+{
+    return js.effectTime(ACTID_GNB_Cartridge1) > 0 ? 450 : -1000;
+}
+
+Damage GNB_SavageClaw::damage(const JobState& js) const
+{
+    return js.effectTime(ACTID_GNB_GnashingFang) > 0 ? 550 : -1000;
+}
+
+Damage GNB_WickedTalon::damage(const JobState& js) const
+{
+    return js.effectTime(ACTID_GNB_SavageClaw) > 0 ? 650 : -1000;
+}
+
+Damage GNB_Continuation::damage(const JobState& js) const
+{
+    if (js.effectTime(ACTID_GNB_Continuation) == 0)
+        return -1000;
+
+    if (js.effectTime(ACTID_GNB_GnashingFang) > 5)
+        return 260;
+    else if (js.effectTime(ACTID_GNB_SavageClaw) > 5)
+        return 280;
+    else if (js.effectTime(ACTID_GNB_WickedTalon) > 5)
+        return 300;
+    else
+        return -1000;
+}
 
 } // namespace actions

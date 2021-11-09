@@ -7,6 +7,9 @@
 #include "types.hpp"
 
 struct JobState {
+    // id->time remaining
+    using Effects = std::array<Time, ACTID_EFFECT_MAX>;
+
     Damage advanceTo(Time time);
     Damage processAction(const Action& action);
 
@@ -15,13 +18,14 @@ struct JobState {
     bool inCombo() const { return inCombo_; }
     Damage damage() const { return damage_; }
 
+    Time effectTime(ACTID action) const { return effects_[action]; }
+
 private:
     Time currentTime_ = 0;
     Damage damage_ = 0;
     ACTID lastGcd_ = ACTID_Noop;
     bool inCombo_ = false;
-    // id->time remaining
-    std::array<Time, ACTID_EFFECT_MAX> effects_ {};
+    Effects effects_ {};
 };
 
 /*

@@ -32,7 +32,9 @@ enum ACTID {
     ACTID_GNB_GnashingFang,
     ACTID_GNB_SavageClaw,
     ACTID_GNB_WickedTalon,
-    ACTID_GNB_Bloodfest,
+    ACTID_GNB_Continuation,
+    ACTID_GNB_Cartridge1,
+    ACTID_GNB_Cartridge2,
 
     ACTID_DamageBuffPotion30,
 
@@ -53,8 +55,8 @@ enum ACTID {
 
     ACTID_GNB_SolidBarrel,
     ACTID_GNB_BurstStrike,
-    ACTID_GNB_Continuation,
     ACTID_GNB_BlastingZone,
+    ACTID_GNB_Bloodfest,
 
     ACTID_MAX,
 };

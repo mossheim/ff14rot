@@ -47,6 +47,7 @@
 Time gcdStartTime(const Rotation& rot, Time gcdDelay);
 Time gcdExtendedCooldownStartTime(const Rotation& rot, Time gcdDelay, Time cdDelay, ACTID actionId);
 Time cooldownStartTime(const Rotation& rot, Time cdDelay, ACTID actionId);
+Time multiCooldownStartTime(const Rotation& rot, Time cdDelay, int charges, ACTID actionId);
 
 namespace actions {
 
@@ -78,6 +79,17 @@ struct Ogcd {
     Time startTime(const Rotation& rot, Time gcdDelay) const
     {
         return cooldownStartTime(rot, CDTIME, ID);
+    }
+    bool combo(const JobState& jobState) const { return jobState.inCombo(); }
+};
+
+template <ACTID ID, int CHARGES, int CDTIME>
+struct MultiOgcd {
+    ACTID id() const { return ID; }
+    bool isGcd() const { return false; }
+    Time startTime(const Rotation& rot, Time gcdDelay) const
+    {
+        return multiCooldownStartTime(rot, CDTIME, CHARGES, ID);
     }
     bool combo(const JobState& jobState) const { return jobState.inCombo(); }
 };
@@ -192,19 +204,19 @@ struct GNB_NoMercy : Ogcd<ACTID_GNB_NoMercy, 60>, FixedDmg<0> {
 
 struct GNB_BrutalShell : Gcd<ACTID_GNB_BrutalShell> {
     std::string name() const { return ACT_GNB_BrutalShell; }
-    Damage damage(const JobState&) const { return 0 /* TODO */; }
+    Damage damage(const JobState&) const;
     bool combo(const JobState& jobState) const { return false; }
 };
 
 struct GNB_SolidBarrel : Gcd<ACTID_GNB_SolidBarrel> {
     std::string name() const { return ACT_GNB_SolidBarrel; }
-    Damage damage(const JobState&) const { return 0 /* TODO */; }
+    Damage damage(const JobState&) const;
     bool combo(const JobState& jobState) const { return false; }
 };
 
 struct GNB_BurstStrike : Gcd<ACTID_GNB_BurstStrike> {
     std::string name() const { return ACT_GNB_BurstStrike; }
-    Damage damage(const JobState&) const { return 0 /* TODO */; }
+    Damage damage(const JobState&) const;
     bool combo(const JobState& jobState) const { return false; }
 };
 
@@ -214,25 +226,24 @@ struct GNB_SonicBreak : GcdExtendedCooldown<ACTID_GNB_SonicBreak, 60>, FixedDmg<
     std::string name() const { return ACT_GNB_SonicBreak; }
 };
 
-struct GNB_RoughDivide : Ogcd<ACTID_GNB_RoughDivide, 0> {
+struct GNB_RoughDivide : MultiOgcd<ACTID_GNB_RoughDivide, 2, 30>, FixedDmg<200> {
     std::string name() const { return ACT_GNB_RoughDivide; }
-    Damage damage(const JobState&) const { return 0 /* TODO */; }
 };
 
 struct GNB_GnashingFang : GcdExtendedCooldown<ACTID_GNB_GnashingFang, 30> {
     std::string name() const { return ACT_GNB_GnashingFang; }
-    Damage damage(const JobState&) const { return 0 /* TODO */; }
+    Damage damage(const JobState&) const;
 };
 
 struct GNB_SavageClaw : Gcd<ACTID_GNB_SavageClaw> {
     std::string name() const { return ACT_GNB_SavageClaw; }
-    Damage damage(const JobState&) const { return 0 /* TODO */; }
+    Damage damage(const JobState&) const;
     bool combo(const JobState& jobState) const { return false; }
 };
 
 struct GNB_WickedTalon : Gcd<ACTID_GNB_WickedTalon> {
     std::string name() const { return ACT_GNB_WickedTalon; }
-    Damage damage(const JobState&) const { return 0 /* TODO */; }
+    Damage damage(const JobState&) const;
     bool combo(const JobState& jobState) const { return false; }
 };
 
@@ -244,7 +255,7 @@ struct GNB_BowShock : Ogcd<ACTID_GNB_BowShock, 60>, FixedDmg<200> {
 
 struct GNB_Continuation : Ogcd<ACTID_GNB_Continuation, 0> {
     std::string name() const { return ACT_GNB_Continuation; }
-    Damage damage(const JobState&) const { return 0 /* TODO */; }
+    Damage damage(const JobState&) const;
 };
 
 // --- GNB 71-80
