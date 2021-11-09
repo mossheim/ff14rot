@@ -55,7 +55,6 @@ std::optional<Job> getJob(const std::string& jobName)
         } };
     else if (jobName == "GNB80_Single")
         return Job { {
-            /*
             { actions::DamageBuffPotion30 {} },
             { actions::GNB_KeenEdge {} },
             { actions::GNB_NoMercy {} },
@@ -71,7 +70,6 @@ std::optional<Job> getJob(const std::string& jobName)
             { actions::GNB_Continuation {} },
             { actions::GNB_Bloodfest {} },
             { actions::GNB_BlastingZone {} },
-            */
         } };
     else
         return {};

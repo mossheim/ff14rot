@@ -34,7 +34,7 @@ enum ACTID {
     ACTID_GNB_WickedTalon,
     ACTID_GNB_Bloodfest,
 
-    ACTID_ComboContinuation,
+    ACTID_DamageBuffPotion30,
 
     ACTID_EFFECT_MAX,
 

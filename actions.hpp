@@ -64,6 +64,7 @@ template <ACTID ID, int CDTIME>
 struct GcdExtendedCooldown {
     ACTID id() const { return ID; }
     bool isGcd() const { return true; }
+    bool combo(const JobState& jobState) const { return false; }
     Time startTime(const Rotation& rot, Time gcdDelay) const
     {
         return gcdExtendedCooldownStartTime(rot, gcdDelay, CDTIME, ID);
@@ -192,16 +193,19 @@ struct GNB_NoMercy : Ogcd<ACTID_GNB_NoMercy, 60>, FixedDmg<0> {
 struct GNB_BrutalShell : Gcd<ACTID_GNB_BrutalShell> {
     std::string name() const { return ACT_GNB_BrutalShell; }
     Damage damage(const JobState&) const { return 0 /* TODO */; }
+    bool combo(const JobState& jobState) const { return false; }
 };
 
 struct GNB_SolidBarrel : Gcd<ACTID_GNB_SolidBarrel> {
     std::string name() const { return ACT_GNB_SolidBarrel; }
     Damage damage(const JobState&) const { return 0 /* TODO */; }
+    bool combo(const JobState& jobState) const { return false; }
 };
 
 struct GNB_BurstStrike : Gcd<ACTID_GNB_BurstStrike> {
     std::string name() const { return ACT_GNB_BurstStrike; }
     Damage damage(const JobState&) const { return 0 /* TODO */; }
+    bool combo(const JobState& jobState) const { return false; }
 };
 
 // --- GNB 51-60
@@ -217,16 +221,19 @@ struct GNB_RoughDivide : Ogcd<ACTID_GNB_RoughDivide, 0> {
 
 struct GNB_GnashingFang : GcdExtendedCooldown<ACTID_GNB_GnashingFang, 30> {
     std::string name() const { return ACT_GNB_GnashingFang; }
+    Damage damage(const JobState&) const { return 0 /* TODO */; }
 };
 
 struct GNB_SavageClaw : Gcd<ACTID_GNB_SavageClaw> {
     std::string name() const { return ACT_GNB_SavageClaw; }
     Damage damage(const JobState&) const { return 0 /* TODO */; }
+    bool combo(const JobState& jobState) const { return false; }
 };
 
 struct GNB_WickedTalon : Gcd<ACTID_GNB_WickedTalon> {
     std::string name() const { return ACT_GNB_WickedTalon; }
     Damage damage(const JobState&) const { return 0 /* TODO */; }
+    bool combo(const JobState& jobState) const { return false; }
 };
 
 // --- GNB 61-70
@@ -252,6 +259,12 @@ struct GNB_BlastingZone : Ogcd<ACTID_GNB_BlastingZone, 30>, FixedDmg<800> {
 
 // -------
 
+struct DamageBuffPotion30 : Ogcd<ACTID_DamageBuffPotion30, 300>, FixedDmg<0> {
+    std::string name() const { return ACT_DamageBuffPotion30; }
+};
+
+// -------
+
 
 struct Action {
     using Impl = std::variant<
@@ -272,7 +285,7 @@ struct Action {
         DRG_WheelingThrust,
         DRG_FangAndClaw,
         DRG_Gierskogul,
-        /*
+
         GNB_KeenEdge,
         GNB_NoMercy,
         GNB_BrutalShell,
@@ -287,8 +300,8 @@ struct Action {
         GNB_Continuation,
         GNB_Bloodfest,
         GNB_BlastingZone,
+
         DamageBuffPotion30,
-        */
         Noop>;
     Impl v;
 
