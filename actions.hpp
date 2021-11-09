@@ -91,98 +91,80 @@ struct ComboDmg {
 
 struct Noop : Gcd<ACTID_Noop>, FixedDmg<0> {
     std::string name() const { return ACT_Noop; }
-    Time delayTime() const { return 0.5; }
     bool combo(const JobState& jobState) const { return false; }
 };
 
 struct DRG_TrueThrust : Gcd<ACTID_DRG_TrueThrust>, FixedDmg<290> {
     std::string name() const { return ACT_DRG_TrueThrust; }
-    Time delayTime() const { return 1; /* TODO calc */ }
     bool combo(const JobState& jobState) const { return true; }
 };
 
 struct DRG_VorpalThrust : Gcd<ACTID_DRG_VorpalThrust>, ComboDmg<ACTID_DRG_TrueThrust, 140, 350> {
     std::string name() const { return ACT_DRG_VorpalThrust; }
-    Time delayTime() const { return 1; /* TODO calc */ }
 };
 
 struct DRG_LifeSurge : Ogcd<ACTID_DRG_LifeSurge, 45>, FixedDmg<0> {
     std::string name() const { return ACT_DRG_LifeSurge; }
-    Time delayTime() const { return 1; /* TODO calc */ }
 };
 
 struct DRG_PiercingTalon : Gcd<ACTID_DRG_PiercingTalon>, FixedDmg<170> {
     std::string name() const { return ACT_DRG_PiercingTalon; }
-    Time delayTime() const { return 1; /* TODO calc */ }
     bool combo(const JobState& jobState) const { return false; }
 };
 
 struct DRG_Disembowel : Gcd<ACTID_DRG_Disembowel>, ComboDmg<ACTID_DRG_TrueThrust, 150, 320> {
     std::string name() const { return ACT_DRG_Disembowel; }
-    Time delayTime() const { return 1; /* TODO calc */ }
 };
 
 struct DRG_FullThrust : Gcd<ACTID_DRG_FullThrust>, ComboDmg<ACTID_DRG_VorpalThrust, 100, 530> {
     std::string name() const { return ACT_DRG_FullThrust; }
-    Time delayTime() const { return 1; /* TODO calc */ }
 };
 
 struct DRG_LanceCharge : Ogcd<ACTID_DRG_LanceCharge, 90>, FixedDmg<0> {
     std::string name() const { return ACT_DRG_LanceCharge; }
-    Time delayTime() const { return 1; /* TODO calc */ }
 };
 
 struct DRG_Jump : Ogcd<ACTID_DRG_Jump, 30>, FixedDmg<310> {
     std::string name() const { return ACT_DRG_Jump; }
-    Time delayTime() const { return 1; /* TODO calc */ }
 };
 
 struct DRG_DoomSpike : Gcd<ACTID_DRG_DoomSpike>, FixedDmg<170> {
     std::string name() const { return ACT_DRG_DoomSpike; }
-    Time delayTime() const { return 1; /* TODO calc */ }
     bool combo(const JobState& jobState) const { return false; }
 };
 
 struct DRG_SpineshatterDive : Ogcd<ACTID_DRG_SpineshatterDive, 60>, FixedDmg<240> {
     std::string name() const { return ACT_DRG_SpineshatterDive; }
-    Time delayTime() const { return 1; /* TODO calc */ }
 };
 
 struct DRG_ChaosThrust : Gcd<ACTID_DRG_ChaosThrust>, ComboDmg<ACTID_DRG_Disembowel, 140, 330> {
     std::string name() const { return ACT_DRG_ChaosThrust; }
-    Time delayTime() const { return 1; /* TODO calc */ }
 };
 
 struct DRG_DragonfireDive : Ogcd<ACTID_DRG_DragonfireDive, 120>, FixedDmg<380> {
     std::string name() const { return ACT_DRG_DragonfireDive; }
-    Time delayTime() const { return 1; /* TODO calc */ }
 };
 
 // --- DRG 52-60
 
 struct DRG_BattleLitany : Ogcd<ACTID_DRG_BattleLitany, 180>, FixedDmg<0> {
     std::string name() const { return ACT_DRG_BattleLitany; }
-    Time delayTime() const { return 1; /* TODO calc */ }
 };
 
 struct DRG_BloodOfTheDragon : Ogcd<ACTID_DRG_BloodOfTheDragon, 25>, FixedDmg<0> {
     std::string name() const { return ACT_DRG_BloodOfTheDragon; }
-    Time delayTime() const { return 1; /* TODO calc */ }
 };
 
 struct DRG_FangAndClaw : Gcd<ACTID_DRG_FangAndClaw>, ComboDmg<ACTID_DRG_FullThrust, -999, 380> {
     std::string name() const { return ACT_DRG_FangAndClaw; }
-    Time delayTime() const { return 1; /* TODO calc */ }
 };
 
 struct DRG_WheelingThrust : Gcd<ACTID_DRG_WheelingThrust>, ComboDmg<ACTID_DRG_ChaosThrust, -999, 380> {
     std::string name() const { return ACT_DRG_WheelingThrust; }
-    Time delayTime() const { return 1; /* TODO calc */ }
 };
 
 struct DRG_Gierskogul : Ogcd<ACTID_DRG_Gierskogul, 30>, FixedDmg<300> {
     std::string name() const { return ACT_DRG_Gierskogul; }
-    Time delayTime() const { return 1; /* TODO calc */ }
 };
 
 // --- GNB 1-50
@@ -267,7 +249,6 @@ inline auto getStartTime(const Rotation& rot, const Action& action, Time gcdDela
 }
 
 inline auto getIsGcd(const Action& action) { GET_FIELD(isGcd); }
-inline auto getDelayTime(const Action& action) { GET_FIELD(delayTime); }
 
 inline auto getDamage(const Action& action, const JobState& state)
 {

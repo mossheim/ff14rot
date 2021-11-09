@@ -2,6 +2,8 @@
 
 #include <algorithm>
 
+constexpr Time DELAY_TIME = 1.05;
+
 Time findLastGcdTime(const Rotation& rot)
 {
     auto rit = std::find_if(rot.entries.rbegin(), rot.entries.rend(), [](const auto& e) {
@@ -20,7 +22,7 @@ Time findLastCdTime(const Rotation& rot, ACTID actionId)
 
 Time nextPossibleActionTime(const RotationEntry& entry)
 {
-    return getDelayTime(entry.action) + entry.time;
+    return DELAY_TIME + entry.time;
 }
 
 Time gcdStartTime(const Rotation& rot, Time gcdDelay)
