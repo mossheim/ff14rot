@@ -322,7 +322,7 @@ void printResult(const Rotation& rotation, Time totalDamage)
 
 int main(int argc, char** argv)
 {
-    std::string usage = "Usage:\n  "s + argv[0] + " <job> <duration in seconds> <GCD delay> [<num candidates>]";
+    std::string usage = "Usage:\n  "s + argv[0] + " <job> <duration in seconds> <GCD delay> [<num candidates = 500>]";
     if (argc != 4 && argc != 5) {
         std::cout << usage << std::endl;
         return 1;
