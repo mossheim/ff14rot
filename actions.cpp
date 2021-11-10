@@ -119,8 +119,7 @@ std::string_view Action::name() const
     case ACTID_GNB_EnhancedBowShock:
     case ACTID_GNB_EnhancedSonicBreak:
     case ACTID_MAX:
-        error("Name: " + std::to_string(v));
-        return "XXX shouldn't see this XXX";
+        return "XXX";
     }
 
     error("Name: " + std::to_string(v));
