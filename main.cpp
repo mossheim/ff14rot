@@ -280,7 +280,7 @@ Rotation pruningOptimalRotation(const Job& job, Time duration, Time gcdDelay, in
             for (auto& action : job.actions) {
                 // Put all time-viable candidates in pq2 ensuring it doesn't grow too large
                 auto time = getStartTime(rot, action, gcdDelay);
-                if (time - state.time() < gcdDelay * 1.5 && time < duration) {
+                if (time - state.time() < gcdDelay * 1.1 && time < duration) {
                     auto newState = state;
                     newState.advanceTo(time);
                     newState.processAction(action);
