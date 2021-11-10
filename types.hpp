@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+
 using Time = float;
 using Damage = float;
 
@@ -12,14 +14,14 @@ struct Action;
 }
 using actions::Action;
 
-enum ACTID {
+enum ACTID : uint8_t {
     ACTID_DRG_Disembowel,
     ACTID_GNB_SonicBreak,
     ACTID_GNB_EnhancedSonicBreak,
     ACTID_GNB_BowShock,
     ACTID_GNB_EnhancedBowShock,
 
-    ACTID_DOT_MAX,
+    ACTID_DOT_MAX, // TODO chaosthrust = this?
 
     ACTID_DRG_ChaosThrust,
     ACTID_DRG_LanceCharge,

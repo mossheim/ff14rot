@@ -11,20 +11,9 @@ void printResult(const Rotation& rotation, Time totalDamage)
     int counter = 0;
     std::cout << std::setprecision(2) << std::fixed;
     for (auto&& [action, time] : rotation.entries) {
-        std::cout << counter++ << "\t" << time << "\t" << getName(action) << std::endl;
+        std::cout << counter++ << "\t" << time << "\t" << action.name() << std::endl;
     }
     std::cout << "\nTotal Damage: " << totalDamage << "\n";
-}
-
-template <typename T>
-bool check(const std::string& name, Action::Impl& impl)
-{
-    if (T {}.name().find(name) != std::string::npos) {
-        impl = T {};
-        return true;
-    } else {
-        return false;
-    }
 }
 
 bool fail(const std::string& name)
@@ -32,17 +21,14 @@ bool fail(const std::string& name)
     throw std::runtime_error("Couldn't find matching job for " + name);
 }
 
-template <typename... Ts>
-void findActionImpl(const std::string& name, std::variant<Ts...>& action)
-{
-    (check<Ts>(name, action) || ...) || fail(name);
-}
-
 Action findAction(const std::string& name)
 {
-    Action::Impl impl;
-    findActionImpl(name, impl);
-    return { impl };
+    for (uint8_t i = 0; i < ACTID_MAX; ++i)
+        if (Action(ACTID(i)).name().find(name) != std::string::npos)
+            return Action(ACTID(i));
+
+    fail(name);
+    return Action(ACTID_MAX);
 }
 
 void stripws(std::string& s)
@@ -71,8 +57,8 @@ Damage calculatePotentialDamage(const Rotation& rot, const Action& next, Time st
     if (verbose) {
         std::cerr << "CPDmg" << std::endl;
         for (auto& [a, t] : rot.entries)
-            std::cerr << "(" << getName(a) << ", " << t << "), ";
-        std::cerr << "(" << getName(next) << ", " << startTime << ")" << std::endl;
+            std::cerr << "(" << a.name() << ", " << t << "), ";
+        std::cerr << "(" << next.name() << ", " << startTime << ")" << std::endl;
         std::cerr << "duration=" << duration << "; gcdDelay=" << gcdDelay << std::endl;
     }
 
@@ -80,7 +66,7 @@ Damage calculatePotentialDamage(const Rotation& rot, const Action& next, Time st
     Damage accumDmg = 0;
     for (auto&& [action, time] : rot.entries) {
         if (verbose)
-            std::cerr << "action=" << getName(action) << "; time=" << time;
+            std::cerr << "action=" << action.name() << "; time=" << time;
         accumDmg += state.advanceTo(time);
         if (verbose)
             std::cerr << "; accumAdv=" << accumDmg;
@@ -90,7 +76,7 @@ Damage calculatePotentialDamage(const Rotation& rot, const Action& next, Time st
     }
 
     if (verbose)
-        std::cerr << "action=" << getName(next) << "; time=" << startTime;
+        std::cerr << "action=" << next.name() << "; time=" << startTime;
     accumDmg += state.advanceTo(startTime);
     if (verbose)
         std::cerr << "; accumAdv=" << accumDmg;
@@ -110,7 +96,7 @@ Damage calculatePotentialDamage(const Rotation& rot, const Action& next, Time st
 
 int main()
 {
-    RotationEntry entry { { actions::Noop {} } };
+    RotationEntry entry { ACTID_Noop };
     Rotation rot {};
 
     Time duration;
@@ -124,6 +110,6 @@ int main()
     }
 
     std::cout << "Parsed input:" << std::endl;
-    auto totalDamage = calculatePotentialDamage(rot, { actions::Noop {} }, duration, duration, gcdDelay, false);
+    auto totalDamage = calculatePotentialDamage(rot, ACTID_Noop, duration, duration, gcdDelay, false);
     printResult(rot, totalDamage);
 }

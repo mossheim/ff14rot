@@ -20,56 +20,56 @@ std::optional<Job> getJob(const std::string& jobName)
 {
     if (jobName == "DRG50")
         return Job { {
-            { actions::DRG_TrueThrust {} },
-            { actions::DRG_VorpalThrust {} },
-            { actions::DRG_LifeSurge {} },
-            { actions::DRG_PiercingTalon {} },
-            { actions::DRG_Disembowel {} },
-            { actions::DRG_FullThrust {} },
-            { actions::DRG_LanceCharge {} },
-            { actions::DRG_Jump {} },
-            { actions::DRG_DoomSpike {} },
-            { actions::DRG_SpineshatterDive {} },
-            { actions::DRG_ChaosThrust {} },
-            { actions::DRG_DragonfireDive {} },
+            ACTID_DRG_TrueThrust,
+            ACTID_DRG_VorpalThrust,
+            ACTID_DRG_LifeSurge,
+            ACTID_DRG_PiercingTalon,
+            ACTID_DRG_Disembowel,
+            ACTID_DRG_FullThrust,
+            ACTID_DRG_LanceCharge,
+            ACTID_DRG_Jump,
+            ACTID_DRG_DoomSpike,
+            ACTID_DRG_SpineshatterDive,
+            ACTID_DRG_ChaosThrust,
+            ACTID_DRG_DragonfireDive,
         } };
     else if (jobName == "DRG60")
         return Job { {
-            { actions::DRG_TrueThrust {} },
-            { actions::DRG_VorpalThrust {} },
-            { actions::DRG_LifeSurge {} },
-            { actions::DRG_PiercingTalon {} },
-            { actions::DRG_Disembowel {} },
-            { actions::DRG_FullThrust {} },
-            { actions::DRG_LanceCharge {} },
-            { actions::DRG_Jump {} },
-            { actions::DRG_DoomSpike {} },
-            { actions::DRG_SpineshatterDive {} },
-            { actions::DRG_ChaosThrust {} },
-            { actions::DRG_DragonfireDive {} },
-            { actions::DRG_BattleLitany {} },
-            { actions::DRG_BloodOfTheDragon {} },
-            { actions::DRG_WheelingThrust {} },
-            { actions::DRG_FangAndClaw {} },
-            { actions::DRG_Gierskogul {} },
+            ACTID_DRG_TrueThrust,
+            ACTID_DRG_VorpalThrust,
+            ACTID_DRG_LifeSurge,
+            ACTID_DRG_PiercingTalon,
+            ACTID_DRG_Disembowel,
+            ACTID_DRG_FullThrust,
+            ACTID_DRG_LanceCharge,
+            ACTID_DRG_Jump,
+            ACTID_DRG_DoomSpike,
+            ACTID_DRG_SpineshatterDive,
+            ACTID_DRG_ChaosThrust,
+            ACTID_DRG_DragonfireDive,
+            ACTID_DRG_BattleLitany,
+            ACTID_DRG_BloodOfTheDragon,
+            ACTID_DRG_WheelingThrust,
+            ACTID_DRG_FangAndClaw,
+            ACTID_DRG_Gierskogul,
         } };
     else if (jobName == "GNB80_Single")
         return Job { {
-            { actions::DamageBuffPotion30 {} },
-            { actions::GNB_KeenEdge {} },
-            { actions::GNB_NoMercy {} },
-            { actions::GNB_BrutalShell {} },
-            { actions::GNB_SolidBarrel {} },
-            { actions::GNB_BurstStrike {} },
-            { actions::GNB_SonicBreak {} },
-            { actions::GNB_RoughDivide {} },
-            { actions::GNB_GnashingFang {} },
-            { actions::GNB_SavageClaw {} },
-            { actions::GNB_WickedTalon {} },
-            { actions::GNB_BowShock {} },
-            { actions::GNB_Continuation {} },
-            { actions::GNB_Bloodfest {} },
-            { actions::GNB_BlastingZone {} },
+            ACTID_DamageBuffPotion30,
+            ACTID_GNB_KeenEdge,
+            ACTID_GNB_NoMercy,
+            ACTID_GNB_BrutalShell,
+            ACTID_GNB_SolidBarrel,
+            ACTID_GNB_BurstStrike,
+            ACTID_GNB_SonicBreak,
+            ACTID_GNB_RoughDivide,
+            ACTID_GNB_GnashingFang,
+            ACTID_GNB_SavageClaw,
+            ACTID_GNB_WickedTalon,
+            ACTID_GNB_BowShock,
+            ACTID_GNB_Continuation,
+            ACTID_GNB_Bloodfest,
+            ACTID_GNB_BlastingZone,
         } };
     else
         return {};
@@ -81,8 +81,8 @@ Damage calculatePotentialDamage(const Rotation& rot, const Action& next, Time st
     if (verbose) {
         std::cerr << "CPDmg" << std::endl;
         for (auto& [a, t] : rot.entries)
-            std::cerr << "(" << getName(a) << ", " << t << "), ";
-        std::cerr << "(" << getName(next) << ", " << startTime << ")" << std::endl;
+            std::cerr << "(" << a.name() << ", " << t << "), ";
+        std::cerr << "(" << next.name() << ", " << startTime << ")" << std::endl;
         std::cerr << "duration=" << duration << "; gcdDelay=" << gcdDelay << std::endl;
     }
 
@@ -90,7 +90,7 @@ Damage calculatePotentialDamage(const Rotation& rot, const Action& next, Time st
     Damage accumDmg = 0;
     for (auto&& [action, time] : rot.entries) {
         if (verbose)
-            std::cerr << "action=" << getName(action) << "; time=" << time;
+            std::cerr << "action=" << action.name() << "; time=" << time;
         accumDmg += state.advanceTo(time);
         if (verbose)
             std::cerr << "; accumAdv=" << accumDmg;
@@ -100,7 +100,7 @@ Damage calculatePotentialDamage(const Rotation& rot, const Action& next, Time st
     }
 
     if (verbose)
-        std::cerr << "action=" << getName(next) << "; time=" << startTime;
+        std::cerr << "action=" << next.name() << "; time=" << startTime;
     accumDmg += state.advanceTo(startTime);
     if (verbose)
         std::cerr << "; accumAdv=" << accumDmg;
@@ -129,12 +129,12 @@ auto calculatePotentialDamageIncremental(const Action& next, Time startTime, Tim
 
 std::optional<RotationEntry> greedyChooseNextRotationEntry(const Rotation& rot, const Job& job, Time duration, Time gcdDelay)
 {
-    RotationEntry result { { actions::Noop {} }, 0.0 };
+    RotationEntry result { ACTID_Noop, 0.0 };
     Damage maxDamage = -1;
 
     for (const auto& action : job.actions) {
-        std::cerr << "Action loop - " << getName(action) << std::endl;
-        auto time = getStartTime(rot, action, gcdDelay);
+        std::cerr << "Action loop - " << action.name() << std::endl;
+        auto time = action.startTime(rot, gcdDelay);
         std::cerr << "Start time " << time << std::endl;
         if (time >= duration)
             continue;
@@ -191,11 +191,11 @@ Rotation exhaustiveOptimalRotation(const Job& job, Time duration, Time gcdDelay)
         /*
         std::cerr << "Loop: rotation = ";
         for (auto& [a, t] : workingRot.entries)
-            std::cerr << getName(a) << ", ";
+            std::cerr << a.name() << ", ";
         std::cerr << getName(*iters.back()) << std::endl;
         */
 
-        auto nextTime = getStartTime(workingRot, *iters.back(), gcdDelay);
+        auto nextTime = iters.back()->startTime(workingRot, gcdDelay);
         //std::cerr << "Next time = " << nextTime << std::endl;
         if (nextTime < duration) {
             auto [damage, state] = calculatePotentialDamageIncremental(*iters.back(), nextTime, duration, gcdDelay, states.back());
@@ -210,7 +210,7 @@ Rotation exhaustiveOptimalRotation(const Job& job, Time duration, Time gcdDelay)
                 std::cerr << "New good DMG=" << damage;
                 std::cerr << "; NextTime=" << nextTime << "; Loop: rotation = ";
                 for (auto& [a, t] : workingRot.entries)
-                    std::cerr << getName(a) << ", ";
+                    std::cerr << a.name() << ", ";
                 std::cerr << getName(*iters.back()) << std::endl;
             }
             */
@@ -279,7 +279,7 @@ Rotation pruningOptimalRotation(const Job& job, Time duration, Time gcdDelay, in
 
             for (auto& action : job.actions) {
                 // Put all time-viable candidates in pq2 ensuring it doesn't grow too large
-                auto time = getStartTime(rot, action, gcdDelay);
+                auto time = action.startTime(rot, gcdDelay);
                 if (time - state.time() < gcdDelay * 1.1 && time < duration) {
                     auto newState = state;
                     newState.advanceTo(time);
@@ -315,7 +315,7 @@ void printResult(const Rotation& rotation, Time totalDamage)
     int counter = 0;
     std::cout << std::setprecision(2) << std::fixed;
     for (auto&& [action, time] : rotation.entries) {
-        std::cout << counter++ << "\t" << time << "\t" << getName(action) << std::endl;
+        std::cout << counter++ << "\t" << time << "\t" << action.name() << std::endl;
     }
     std::cout << "\nTotal Damage: " << totalDamage << "\n";
 }
@@ -338,7 +338,7 @@ int main(int argc, char** argv)
     if (auto maybeJob = getJob(jobName)) {
         if (duration > 0 && gcdDelay > 0) {
             auto result = calculateOptimalRotation(*maybeJob, duration, gcdDelay, maxCandidates);
-            auto totalDamage = calculatePotentialDamage(result, { actions::Noop {} }, duration, duration, gcdDelay, false);
+            auto totalDamage = calculatePotentialDamage(result, ACTID_Noop, duration, duration, gcdDelay, false);
             printResult(result, totalDamage);
         } else {
             std::cout << "Duration and GCD delay must be > 0" << std::endl;

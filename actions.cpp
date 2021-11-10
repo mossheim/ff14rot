@@ -1,13 +1,16 @@
 #include "actions.hpp"
 
 #include <algorithm>
+#include <iostream>
 
 constexpr Time DELAY_TIME = 1.05;
+
+using namespace std::string_literals;
 
 Time findLastGcdTime(const Rotation& rot)
 {
     auto rit = std::find_if(rot.entries.rbegin(), rot.entries.rend(), [](const auto& e) {
-        return getIsGcd(e.action);
+        return e.action.isGcd();
     });
     return rit == rot.entries.rend() ? -10000 : rit->time;
 }
@@ -15,7 +18,7 @@ Time findLastGcdTime(const Rotation& rot)
 Time findLastCdTime(const Rotation& rot, ACTID actionId)
 {
     auto rit = std::find_if(rot.entries.rbegin(), rot.entries.rend(), [&](const auto& e) {
-        return getId(e.action) == actionId;
+        return e.action.v == actionId;
     });
     return rit == rot.entries.rend() ? -10000 : rit->time;
 }
@@ -54,13 +57,13 @@ Time multiCooldownStartTime(const Rotation& rot, Time cdDelay, int charges, ACTI
     const auto nextPossTime = nextPossibleActionTime(rot.entries.back());
 
     auto it = std::find_if(entries.begin(), entries.end(), [&](const auto& e) {
-        return getId(e.action) == actionId;
+        return e.action.v == actionId;
     });
     if (it == entries.end())
         return nextPossTime;
 
     auto nUses = std::count_if(it + 1, entries.end(), [&](const auto& e) {
-        return getId(e.action) == actionId;
+        return e.action.v == actionId;
     });
 
     nUses++;
@@ -70,51 +73,321 @@ Time multiCooldownStartTime(const Rotation& rot, Time cdDelay, int charges, ACTI
 
 namespace actions {
 
-// GNB damage calcs
-
-Damage GNB_BrutalShell::damage(const JobState& js) const
+std::string_view Action::name() const
 {
-    return js.effectTime(ACTID_GNB_KeenEdge) > 0 ? 300 : -1000;
+    switch (v) {
+#define CASE(_n_)     \
+    case ACTID_##_n_: \
+        return ACT_##_n_
+        CASE(Noop);
+        CASE(DamageBuffPotion30);
+        CASE(DRG_TrueThrust);
+        CASE(DRG_VorpalThrust);
+        CASE(DRG_LifeSurge);
+        CASE(DRG_PiercingTalon);
+        CASE(DRG_Disembowel);
+        CASE(DRG_FullThrust);
+        CASE(DRG_LanceCharge);
+        CASE(DRG_Jump);
+        CASE(DRG_DoomSpike);
+        CASE(DRG_SpineshatterDive);
+        CASE(DRG_ChaosThrust);
+        CASE(DRG_DragonfireDive);
+        CASE(DRG_BattleLitany);
+        CASE(DRG_BloodOfTheDragon);
+        CASE(DRG_FangAndClaw);
+        CASE(DRG_WheelingThrust);
+        CASE(DRG_Gierskogul);
+        CASE(GNB_KeenEdge);
+        CASE(GNB_NoMercy);
+        CASE(GNB_BrutalShell);
+        CASE(GNB_SolidBarrel);
+        CASE(GNB_BurstStrike);
+        CASE(GNB_SonicBreak);
+        CASE(GNB_RoughDivide);
+        CASE(GNB_GnashingFang);
+        CASE(GNB_SavageClaw);
+        CASE(GNB_WickedTalon);
+        CASE(GNB_BowShock);
+        CASE(GNB_Continuation);
+        CASE(GNB_Bloodfest);
+        CASE(GNB_BlastingZone);
+#undef CASE
+    case ACTID_DOT_MAX:
+    case ACTID_GNB_Cartridge1:
+    case ACTID_GNB_Cartridge2:
+    case ACTID_GNB_EnhancedBowShock:
+    case ACTID_GNB_EnhancedSonicBreak:
+    case ACTID_MAX:
+        error("Name: " + std::to_string(v));
+        return "XXX shouldn't see this XXX";
+    }
+
+    error("Name: " + std::to_string(v));
+    return "UNKNOWN";
 }
 
-Damage GNB_SolidBarrel::damage(const JobState& js) const
+Time Action::startTime(const Rotation& rot, Time gcdDelay) const
 {
-    return js.effectTime(ACTID_GNB_BrutalShell) > 0 ? 400 : -1000;
+    switch (timingType()) {
+    case Timing::Gcd:
+        return gcdStartTime(rot, gcdDelay);
+    case Timing::GcdExtended:
+        return gcdExtendedCooldownStartTime(rot, gcdDelay, cooldownTime(), v);
+    case Timing::Ogcd:
+        return cooldownStartTime(rot, cooldownTime(), v);
+    case Timing::MultiOgcd:
+        return multiCooldownStartTime(rot, cooldownTime(), charges(), v);
+    }
+
+    error("StartTime: " + std::string(name()));
+    return -1;
 }
 
-Damage GNB_BurstStrike::damage(const JobState& js) const
+bool Action::isGcd() const
 {
-    return js.effectTime(ACTID_GNB_Cartridge1) > 0 ? 500 : -1000;
+    auto type = timingType();
+    return type == Timing::Gcd || type == Timing::GcdExtended;
 }
 
-Damage GNB_GnashingFang::damage(const JobState& js) const
+Damage Action::damage(const JobState& jobState) const
 {
-    return js.effectTime(ACTID_GNB_Cartridge1) > 0 ? 450 : -1000;
+    switch (v) {
+#define FIXED(_n_, _v_) \
+    case ACTID_##_n_:   \
+        return _v_
+        FIXED(Noop, 0);
+        FIXED(DRG_TrueThrust, 290);
+        FIXED(DRG_LifeSurge, 0);
+        FIXED(DRG_PiercingTalon, 0);
+        FIXED(DRG_LanceCharge, 0);
+        FIXED(DRG_Jump, 310);
+        FIXED(DRG_DoomSpike, 170);
+        FIXED(DRG_SpineshatterDive, 240);
+        FIXED(DRG_BloodOfTheDragon, 0);
+        FIXED(DRG_DragonfireDive, 380);
+        FIXED(DRG_BattleLitany, 0);
+        FIXED(DRG_Gierskogul, 300);
+        FIXED(GNB_KeenEdge, 200);
+        FIXED(GNB_NoMercy, 0);
+        FIXED(GNB_SonicBreak, 300);
+        FIXED(GNB_RoughDivide, 200);
+        FIXED(GNB_BowShock, 200);
+        FIXED(GNB_Bloodfest, 0);
+        FIXED(GNB_BlastingZone, 800);
+        FIXED(DamageBuffPotion30, 0);
+#undef FIXED
+#define COMBO(_n_, _other_, _bare_, _combodmg_) \
+    case ACTID_##_n_:                           \
+        return (jobState.inCombo() && jobState.lastGcd() == ACTID_##_other_) ? _combodmg_ : _bare_
+        COMBO(DRG_VorpalThrust, DRG_TrueThrust, 140, 350);
+        COMBO(DRG_Disembowel, DRG_TrueThrust, 150, 320);
+        COMBO(DRG_FullThrust, DRG_VorpalThrust, 100, 530);
+        COMBO(DRG_ChaosThrust, DRG_Disembowel, 140, 330);
+        COMBO(DRG_FangAndClaw, DRG_FullThrust, -999, 380);
+        COMBO(DRG_WheelingThrust, DRG_ChaosThrust, -999, 380);
+#undef COMBO
+#define GNBCOMBO(_n_, _other_, _dmg_) \
+    case ACTID_##_n_:                 \
+        return jobState.effectTime(ACTID_##_other_) > 0 ? _dmg_ : -1000
+        GNBCOMBO(GNB_BrutalShell, GNB_KeenEdge, 300);
+        GNBCOMBO(GNB_SolidBarrel, GNB_BrutalShell, 400);
+        GNBCOMBO(GNB_BurstStrike, GNB_Cartridge1, 500);
+        GNBCOMBO(GNB_GnashingFang, GNB_Cartridge1, 450);
+        GNBCOMBO(GNB_SavageClaw, GNB_GnashingFang, 550);
+        GNBCOMBO(GNB_WickedTalon, GNB_SavageClaw, 650);
+#undef GNBCOMBO
+    case ACTID_GNB_Continuation:
+        if (jobState.effectTime(ACTID_GNB_Continuation) == 0)
+            return -1000;
+        else if (jobState.effectTime(ACTID_GNB_GnashingFang) > 5)
+            return 260;
+        else if (jobState.effectTime(ACTID_GNB_SavageClaw) > 5)
+            return 280;
+        else if (jobState.effectTime(ACTID_GNB_WickedTalon) > 5)
+            return 300;
+        else
+            return -1000;
+
+    case ACTID_GNB_EnhancedBowShock:
+    case ACTID_GNB_EnhancedSonicBreak:
+    case ACTID_GNB_Cartridge1:
+    case ACTID_GNB_Cartridge2:
+    case ACTID_DOT_MAX:
+    case ACTID_MAX:
+        break;
+    }
+
+    error("Damage: " + std::string(name()));
+    return -10000;
 }
 
-Damage GNB_SavageClaw::damage(const JobState& js) const
+bool Action::combo(const JobState& jobState) const
 {
-    return js.effectTime(ACTID_GNB_GnashingFang) > 0 ? 550 : -1000;
+    switch (timingType()) {
+    case Timing::Ogcd:
+    case Timing::MultiOgcd:
+        return jobState.inCombo();
+    case Timing::GcdExtended:
+        return false;
+    case Timing::Gcd:
+        switch (v) {
+#define COMBO(_n_, _other_) \
+    case ACTID_##_n_:       \
+        return jobState.inCombo() && jobState.lastGcd() == ACTID_##_other_
+            COMBO(DRG_VorpalThrust, DRG_TrueThrust);
+            COMBO(DRG_Disembowel, DRG_TrueThrust);
+            COMBO(DRG_FullThrust, DRG_VorpalThrust);
+            COMBO(DRG_ChaosThrust, DRG_Disembowel);
+            COMBO(DRG_FangAndClaw, DRG_FullThrust);
+            COMBO(DRG_WheelingThrust, DRG_ChaosThrust);
+#undef COMBO
+#define FIXED(_n_, _v_) \
+    case ACTID_##_n_:   \
+        return _v_
+            FIXED(Noop, false);
+            FIXED(DRG_TrueThrust, true);
+            FIXED(DRG_PiercingTalon, false);
+            FIXED(DRG_DoomSpike, false);
+            FIXED(GNB_KeenEdge, false);
+            FIXED(GNB_BrutalShell, false);
+            FIXED(GNB_SolidBarrel, false);
+            FIXED(GNB_BurstStrike, false);
+            FIXED(GNB_GnashingFang, false);
+            FIXED(GNB_SavageClaw, false);
+            FIXED(GNB_WickedTalon, false);
+#undef FIXED
+        default:
+            error("Combo: " + std::string(name()));
+            return false;
+        }
+    }
+
+    error("Combo: " + std::string(name()));
+    return false;
 }
 
-Damage GNB_WickedTalon::damage(const JobState& js) const
+Action::Timing Action::timingType() const
 {
-    return js.effectTime(ACTID_GNB_SavageClaw) > 0 ? 650 : -1000;
+    switch (v) {
+#define CASE(_n_, _type_) \
+    case ACTID_##_n_:     \
+        return Timing::_type_
+        CASE(DRG_Disembowel, Gcd);
+        CASE(GNB_SonicBreak, GcdExtended);
+        CASE(GNB_BowShock, Ogcd);
+        CASE(DRG_ChaosThrust, Gcd);
+        CASE(DRG_LanceCharge, Ogcd);
+        CASE(DRG_LifeSurge, Ogcd);
+        CASE(DRG_BattleLitany, Ogcd);
+        CASE(DRG_BloodOfTheDragon, Ogcd);
+        CASE(GNB_KeenEdge, Gcd);
+        CASE(GNB_BrutalShell, Gcd);
+        CASE(GNB_NoMercy, Ogcd);
+        CASE(GNB_RoughDivide, MultiOgcd);
+        CASE(GNB_GnashingFang, Gcd);
+        CASE(GNB_SavageClaw, Gcd);
+        CASE(GNB_WickedTalon, Gcd);
+        CASE(GNB_Continuation, Ogcd);
+        CASE(DamageBuffPotion30, Ogcd);
+        CASE(DRG_TrueThrust, Gcd);
+        CASE(DRG_VorpalThrust, Gcd);
+        CASE(DRG_PiercingTalon, Gcd);
+        CASE(DRG_FullThrust, Gcd);
+        CASE(DRG_Jump, Ogcd);
+        CASE(DRG_DoomSpike, Gcd);
+        CASE(DRG_SpineshatterDive, Ogcd);
+        CASE(DRG_DragonfireDive, Ogcd);
+        CASE(DRG_FangAndClaw, Gcd);
+        CASE(DRG_WheelingThrust, Gcd);
+        CASE(DRG_Gierskogul, Ogcd);
+        CASE(GNB_SolidBarrel, Gcd);
+        CASE(GNB_BurstStrike, Gcd);
+        CASE(GNB_BlastingZone, Ogcd);
+        CASE(GNB_Bloodfest, Ogcd);
+        CASE(Noop, Gcd);
+#undef CASE
+
+    case ACTID_GNB_EnhancedSonicBreak:
+    case ACTID_GNB_EnhancedBowShock:
+    case ACTID_GNB_Cartridge1:
+    case ACTID_GNB_Cartridge2:
+    case ACTID_DOT_MAX:
+    case ACTID_MAX:
+        break;
+    }
+
+    error("TimingType: " + std::string(name()));
+    return Timing::Gcd;
 }
 
-Damage GNB_Continuation::damage(const JobState& js) const
+Time Action::cooldownTime() const
 {
-    if (js.effectTime(ACTID_GNB_Continuation) == 0)
-        return -1000;
+    switch (v) {
+#define CASE(_n_, _val_) \
+    case ACTID_##_n_:    \
+        return _val_
+        CASE(GNB_SonicBreak, 60);
+        CASE(GNB_BowShock, 60);
+        CASE(DRG_LanceCharge, 90);
+        CASE(DRG_LifeSurge, 45);
+        CASE(DRG_BattleLitany, 180);
+        CASE(DRG_BloodOfTheDragon, 25);
+        CASE(GNB_NoMercy, 60);
+        CASE(GNB_RoughDivide, 30);
+        CASE(GNB_GnashingFang, 30);
+        CASE(DRG_Jump, 30);
+        CASE(DRG_SpineshatterDive, 60);
+        CASE(DRG_DragonfireDive, 120);
+        CASE(DRG_Gierskogul, 30);
+        CASE(GNB_BlastingZone, 30);
+        CASE(GNB_Bloodfest, 90);
+        CASE(GNB_Continuation, 0);
+        CASE(DamageBuffPotion30, 360);
+#undef CASE
 
-    if (js.effectTime(ACTID_GNB_GnashingFang) > 5)
-        return 260;
-    else if (js.effectTime(ACTID_GNB_SavageClaw) > 5)
-        return 280;
-    else if (js.effectTime(ACTID_GNB_WickedTalon) > 5)
-        return 300;
-    else
-        return -1000;
+    case ACTID_DRG_Disembowel:
+    case ACTID_GNB_KeenEdge:
+    case ACTID_DRG_ChaosThrust:
+    case ACTID_GNB_BrutalShell:
+    case ACTID_GNB_SavageClaw:
+    case ACTID_GNB_WickedTalon:
+    case ACTID_DRG_TrueThrust:
+    case ACTID_DRG_VorpalThrust:
+    case ACTID_DRG_PiercingTalon:
+    case ACTID_DRG_FullThrust:
+    case ACTID_DRG_DoomSpike:
+    case ACTID_DRG_FangAndClaw:
+    case ACTID_DRG_WheelingThrust:
+    case ACTID_GNB_SolidBarrel:
+    case ACTID_GNB_BurstStrike:
+    case ACTID_GNB_EnhancedSonicBreak:
+    case ACTID_GNB_EnhancedBowShock:
+    case ACTID_GNB_Cartridge1:
+    case ACTID_GNB_Cartridge2:
+    case ACTID_DOT_MAX:
+    case ACTID_MAX:
+    case ACTID_Noop:
+        break;
+    }
+
+    error("CooldownTime: " + std::string(name()));
+    return 0;
+}
+
+int Action::charges() const
+{
+    if (v == ACTID_GNB_RoughDivide) {
+        return 2;
+    } else {
+        error("Charges: " + std::string(name()));
+        return 0;
+    }
+}
+
+void Action::error(const std::string& msg) const
+{
+    std::cerr << "ERROR: " << msg << std::endl;
 }
 
 } // namespace actions

@@ -36,7 +36,7 @@ Damage JobState::advanceTo(Time time)
 
 Damage JobState::processAction(const Action& action)
 {
-    auto result = getDamage(action, *this);
+    auto result = action.damage(*this);
     // TODO do these stack?
     if (effects_[ACTID_DRG_Disembowel] > 0) {
         result *= 1.1;
@@ -48,17 +48,17 @@ Damage JobState::processAction(const Action& action)
         // Crits happen roughly 10% of the time TODO this is not right
         result *= ((critMultiplier - 1) * 0.1) + 1;
     }
-    if (effects_[ACTID_DRG_LifeSurge] > 0 && getIsGcd(action)) {
+    if (effects_[ACTID_DRG_LifeSurge] > 0 && action.isGcd()) {
         result *= critMultiplier;
     }
     if (effects_[ACTID_DRG_BloodOfTheDragon] > 0) {
-        if (getId(action) == ACTID_DRG_Jump ||
-        getId(action) == ACTID_DRG_SpineshatterDive) {
+        if (action.v == ACTID_DRG_Jump ||
+        action.v == ACTID_DRG_SpineshatterDive) {
             result *= 1.3;
         }
     } else {
-        if (getId(action) == ACTID_DRG_FangAndClaw ||
-            getId(action) == ACTID_DRG_WheelingThrust) {
+        if (action.v == ACTID_DRG_FangAndClaw ||
+            action.v == ACTID_DRG_WheelingThrust) {
             // cannot execute these unless BotD is active
             result = -999;
         }
@@ -94,11 +94,11 @@ static void useGnbCartridge(JobState::Effects& effects)
 
 void JobState::applyEffects(const Action& action)
 {
-    inCombo_ = getCombo(action, *this);
+    inCombo_ = action.combo(*this);
 
-    auto id = getId(action);
+    auto id = action.v;
 
-    if (getIsGcd(action)) {
+    if (action.isGcd()) {
         lastGcd_ = id;
         if (lastGcd_ == ACTID_DRG_Disembowel)
             effects_[ACTID_DRG_Disembowel] = 30;
