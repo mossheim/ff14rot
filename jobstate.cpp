@@ -52,13 +52,11 @@ Damage JobState::processAction(const Action& action)
         result *= critMultiplier;
     }
     if (effects_[ACTID_DRG_BloodOfTheDragon] > 0) {
-        if (action.v == ACTID_DRG_Jump ||
-        action.v == ACTID_DRG_SpineshatterDive) {
+        if (action.v == ACTID_DRG_Jump || action.v == ACTID_DRG_SpineshatterDive) {
             result *= 1.3;
         }
     } else {
-        if (action.v == ACTID_DRG_FangAndClaw ||
-            action.v == ACTID_DRG_WheelingThrust) {
+        if (action.v == ACTID_DRG_FangAndClaw || action.v == ACTID_DRG_WheelingThrust) {
             // cannot execute these unless BotD is active
             result = -999;
         }
