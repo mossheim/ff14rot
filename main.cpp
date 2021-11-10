@@ -279,13 +279,13 @@ Rotation pruningOptimalRotation(const Job& job, Time duration, Time gcdDelay, in
 
             for (auto& action : job.actions) {
                 // Put all time-viable candidates in pq2 ensuring it doesn't grow too large
-                auto newRot = rot;
-                auto newState = state;
-                auto time = getStartTime(newRot, action, gcdDelay);
-                if (time < duration) {
+                auto time = getStartTime(rot, action, gcdDelay);
+                if (time - state.time() < gcdDelay * 1.5 && time < duration) {
+                    auto newState = state;
                     newState.advanceTo(time);
                     newState.processAction(action);
                     if (newState.damage() >= state.damage()) {
+                        auto newRot = rot;
                         newRot.entries.push_back({ action, time });
                         pq2.emplace(std::move(newRot), std::move(newState));
                         if (pq2.size() > maxCandidates)

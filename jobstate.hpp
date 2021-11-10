@@ -17,6 +17,7 @@ struct JobState {
     ACTID lastGcd() const { return lastGcd_; }
     bool inCombo() const { return inCombo_; }
     Damage damage() const { return damage_; }
+    Time time() const { return currentTime_; }
 
     Time effectTime(ACTID action) const { return effects_[action]; }
 
