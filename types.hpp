@@ -2,8 +2,8 @@
 
 #include <cstdint>
 
-using Time = float;
-using Damage = float;
+using Time = int32_t; // Fixed point, x100
+using Damage = int32_t; // Fixed point, x100
 
 struct Rotation;
 struct RotationEntry;

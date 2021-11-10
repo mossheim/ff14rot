@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <iostream>
 
-constexpr Time DELAY_TIME = 1.05;
+constexpr Time DELAY_TIME = 105;
 
 using namespace std::string_literals;
 
@@ -12,7 +12,7 @@ Time findLastGcdTime(const Rotation& rot)
     auto rit = std::find_if(rot.entries.rbegin(), rot.entries.rend(), [](const auto& e) {
         return e.action.isGcd();
     });
-    return rit == rot.entries.rend() ? -10000 : rit->time;
+    return rit == rot.entries.rend() ? -1000000 : rit->time;
 }
 
 Time findLastCdTime(const Rotation& rot, ACTID actionId)
@@ -20,7 +20,7 @@ Time findLastCdTime(const Rotation& rot, ACTID actionId)
     auto rit = std::find_if(rot.entries.rbegin(), rot.entries.rend(), [&](const auto& e) {
         return e.action.v == actionId;
     });
-    return rit == rot.entries.rend() ? -10000 : rit->time;
+    return rit == rot.entries.rend() ? -1000000 : rit->time;
 }
 
 Time nextPossibleActionTime(const RotationEntry& entry)
@@ -62,7 +62,7 @@ Time multiCooldownStartTime(const Rotation& rot, Time cdDelay, int charges, ACTI
     if (it == entries.end())
         return nextPossTime;
 
-    auto nUses = std::count_if(it + 1, entries.end(), [&](const auto& e) {
+    int nUses = std::count_if(it + 1, entries.end(), [&](const auto& e) {
         return e.action.v == actionId;
     });
 
@@ -140,7 +140,7 @@ Time Action::startTime(const Rotation& rot, Time gcdDelay) const
     }
 
     error("StartTime: " + std::string(name()));
-    return -1;
+    return -100;
 }
 
 bool Action::isGcd() const
@@ -156,57 +156,57 @@ Damage Action::damage(const JobState& jobState) const
     case ACTID_##_n_:   \
         return _v_
         FIXED(Noop, 0);
-        FIXED(DRG_TrueThrust, 290);
+        FIXED(DRG_TrueThrust, 29000);
         FIXED(DRG_LifeSurge, 0);
         FIXED(DRG_PiercingTalon, 0);
         FIXED(DRG_LanceCharge, 0);
-        FIXED(DRG_Jump, 310);
-        FIXED(DRG_DoomSpike, 170);
-        FIXED(DRG_SpineshatterDive, 240);
+        FIXED(DRG_Jump, 31000);
+        FIXED(DRG_DoomSpike, 17000);
+        FIXED(DRG_SpineshatterDive, 24000);
         FIXED(DRG_BloodOfTheDragon, 0);
-        FIXED(DRG_DragonfireDive, 380);
+        FIXED(DRG_DragonfireDive, 38000);
         FIXED(DRG_BattleLitany, 0);
-        FIXED(DRG_Gierskogul, 300);
-        FIXED(GNB_KeenEdge, 200);
+        FIXED(DRG_Gierskogul, 30000);
+        FIXED(GNB_KeenEdge, 20000);
         FIXED(GNB_NoMercy, 0);
-        FIXED(GNB_SonicBreak, 300);
-        FIXED(GNB_RoughDivide, 200);
-        FIXED(GNB_BowShock, 200);
+        FIXED(GNB_SonicBreak, 30000);
+        FIXED(GNB_RoughDivide, 20000);
+        FIXED(GNB_BowShock, 20000);
         FIXED(GNB_Bloodfest, 0);
-        FIXED(GNB_BlastingZone, 800);
+        FIXED(GNB_BlastingZone, 80000);
         FIXED(DamageBuffPotion30, 0);
 #undef FIXED
 #define COMBO(_n_, _other_, _bare_, _combodmg_) \
     case ACTID_##_n_:                           \
         return (jobState.inCombo() && jobState.lastGcd() == ACTID_##_other_) ? _combodmg_ : _bare_
-        COMBO(DRG_VorpalThrust, DRG_TrueThrust, 140, 350);
-        COMBO(DRG_Disembowel, DRG_TrueThrust, 150, 320);
-        COMBO(DRG_FullThrust, DRG_VorpalThrust, 100, 530);
-        COMBO(DRG_ChaosThrust, DRG_Disembowel, 140, 330);
-        COMBO(DRG_FangAndClaw, DRG_FullThrust, -999, 380);
-        COMBO(DRG_WheelingThrust, DRG_ChaosThrust, -999, 380);
+        COMBO(DRG_VorpalThrust, DRG_TrueThrust, 140, 35000);
+        COMBO(DRG_Disembowel, DRG_TrueThrust, 150, 32000);
+        COMBO(DRG_FullThrust, DRG_VorpalThrust, 100, 53000);
+        COMBO(DRG_ChaosThrust, DRG_Disembowel, 140, 33000);
+        COMBO(DRG_FangAndClaw, DRG_FullThrust, -999, 38000);
+        COMBO(DRG_WheelingThrust, DRG_ChaosThrust, -999, 38000);
 #undef COMBO
 #define GNBCOMBO(_n_, _other_, _dmg_) \
     case ACTID_##_n_:                 \
-        return jobState.effectTime(ACTID_##_other_) > 0 ? _dmg_ : -1000
-        GNBCOMBO(GNB_BrutalShell, GNB_KeenEdge, 300);
-        GNBCOMBO(GNB_SolidBarrel, GNB_BrutalShell, 400);
-        GNBCOMBO(GNB_BurstStrike, GNB_Cartridge1, 500);
-        GNBCOMBO(GNB_GnashingFang, GNB_Cartridge1, 450);
-        GNBCOMBO(GNB_SavageClaw, GNB_GnashingFang, 550);
-        GNBCOMBO(GNB_WickedTalon, GNB_SavageClaw, 650);
+        return jobState.effectTime(ACTID_##_other_) > 0 ? _dmg_ : -100000
+        GNBCOMBO(GNB_BrutalShell, GNB_KeenEdge, 30000);
+        GNBCOMBO(GNB_SolidBarrel, GNB_BrutalShell, 40000);
+        GNBCOMBO(GNB_BurstStrike, GNB_Cartridge1, 50000);
+        GNBCOMBO(GNB_GnashingFang, GNB_Cartridge1, 45000);
+        GNBCOMBO(GNB_SavageClaw, GNB_GnashingFang, 55000);
+        GNBCOMBO(GNB_WickedTalon, GNB_SavageClaw, 65000);
 #undef GNBCOMBO
     case ACTID_GNB_Continuation:
         if (jobState.effectTime(ACTID_GNB_Continuation) == 0)
-            return -1000;
+            return -100000;
         else if (jobState.effectTime(ACTID_GNB_GnashingFang) > 5)
-            return 260;
+            return 26000;
         else if (jobState.effectTime(ACTID_GNB_SavageClaw) > 5)
-            return 280;
+            return 28000;
         else if (jobState.effectTime(ACTID_GNB_WickedTalon) > 5)
-            return 300;
+            return 30000;
         else
-            return -1000;
+            return -100000;
 
     case ACTID_GNB_EnhancedBowShock:
     case ACTID_GNB_EnhancedSonicBreak:
@@ -218,7 +218,7 @@ Damage Action::damage(const JobState& jobState) const
     }
 
     error("Damage: " + std::string(name()));
-    return -10000;
+    return -1000000;
 }
 
 bool Action::combo(const JobState& jobState) const
@@ -326,23 +326,23 @@ Time Action::cooldownTime() const
 #define CASE(_n_, _val_) \
     case ACTID_##_n_:    \
         return _val_
-        CASE(GNB_SonicBreak, 60);
-        CASE(GNB_BowShock, 60);
-        CASE(DRG_LanceCharge, 90);
-        CASE(DRG_LifeSurge, 45);
-        CASE(DRG_BattleLitany, 180);
-        CASE(DRG_BloodOfTheDragon, 25);
-        CASE(GNB_NoMercy, 60);
-        CASE(GNB_RoughDivide, 30);
-        CASE(GNB_GnashingFang, 30);
-        CASE(DRG_Jump, 30);
-        CASE(DRG_SpineshatterDive, 60);
-        CASE(DRG_DragonfireDive, 120);
-        CASE(DRG_Gierskogul, 30);
-        CASE(GNB_BlastingZone, 30);
-        CASE(GNB_Bloodfest, 90);
+        CASE(GNB_SonicBreak, 6000);
+        CASE(GNB_BowShock, 6000);
+        CASE(DRG_LanceCharge, 9000);
+        CASE(DRG_LifeSurge, 4500);
+        CASE(DRG_BattleLitany, 18000);
+        CASE(DRG_BloodOfTheDragon, 2500);
+        CASE(GNB_NoMercy, 6000);
+        CASE(GNB_RoughDivide, 3000);
+        CASE(GNB_GnashingFang, 3000);
+        CASE(DRG_Jump, 3000);
+        CASE(DRG_SpineshatterDive, 6000);
+        CASE(DRG_DragonfireDive, 12000);
+        CASE(DRG_Gierskogul, 3000);
+        CASE(GNB_BlastingZone, 3000);
+        CASE(GNB_Bloodfest, 9000);
         CASE(GNB_Continuation, 0);
-        CASE(DamageBuffPotion30, 360);
+        CASE(DamageBuffPotion30, 36000);
 #undef CASE
 
     case ACTID_DRG_Disembowel:

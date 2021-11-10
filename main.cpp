@@ -129,7 +129,7 @@ auto calculatePotentialDamageIncremental(const Action& next, Time startTime, Tim
 
 std::optional<RotationEntry> greedyChooseNextRotationEntry(const Rotation& rot, const Job& job, Time duration, Time gcdDelay)
 {
-    RotationEntry result { ACTID_Noop, 0.0 };
+    RotationEntry result { ACTID_Noop, 0 };
     Damage maxDamage = -1;
 
     for (const auto& action : job.actions) {
@@ -249,8 +249,14 @@ Rotation pruningOptimalRotation(const Job& job, Time duration, Time gcdDelay, in
     struct RotStatePairGreater {
         bool operator()(const RotStatePair& lhs, const RotStatePair& rhs) const
         {
-            auto lhsDmg = lhs.first.entries.size() == 0 ? 0 : lhs.second.damage() / lhs.first.entries.back().time;
-            auto rhsDmg = rhs.first.entries.size() == 0 ? 0 : rhs.second.damage() / rhs.first.entries.back().time;
+            auto getDmg = [](const RotStatePair& rsp) {
+                if (rsp.first.entries.empty())
+                    return 0;
+                auto lastTime = rsp.first.entries.back().time;
+                return lastTime == 0 ? rsp.second.damage() : rsp.second.damage() / lastTime;
+            };
+            auto lhsDmg = getDmg(lhs);
+            auto rhsDmg = getDmg(rhs);
             if (lhsDmg == rhsDmg)
                 return lhs.first.entries.size() > rhs.first.entries.size();
             else
@@ -315,9 +321,9 @@ void printResult(const Rotation& rotation, Time totalDamage)
     int counter = 0;
     std::cout << std::setprecision(2) << std::fixed;
     for (auto&& [action, time] : rotation.entries) {
-        std::cout << counter++ << "\t" << time << "\t" << action.name() << std::endl;
+        std::cout << counter++ << "\t" << (time / 100.f) << "\t" << action.name() << std::endl;
     }
-    std::cout << "\nTotal Damage: " << totalDamage << "\n";
+    std::cout << "\nTotal Damage: " << (totalDamage / 100.f) << "\n";
 }
 
 int main(int argc, char** argv)
