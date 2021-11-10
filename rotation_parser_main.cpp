@@ -33,7 +33,7 @@ Action findAction(const std::string& name)
 
 void stripws(std::string& s)
 {
-    auto pred = [](char c) { return c == ' '; };
+    auto pred = [](char c) { return isspace(c); };
     s.erase(s.begin(), std::find_if_not(s.begin(), s.end(), pred));
     if (s.empty())
         return;
