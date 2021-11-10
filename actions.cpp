@@ -199,11 +199,11 @@ Damage Action::damage(const JobState& jobState) const
     case ACTID_GNB_Continuation:
         if (jobState.effectTime(ACTID_GNB_Continuation) == 0)
             return -100000;
-        else if (jobState.effectTime(ACTID_GNB_GnashingFang) > 5)
+        else if (jobState.effectTime(ACTID_GNB_GnashingFang) > 500)
             return 26000;
-        else if (jobState.effectTime(ACTID_GNB_SavageClaw) > 5)
+        else if (jobState.effectTime(ACTID_GNB_SavageClaw) > 500)
             return 28000;
-        else if (jobState.effectTime(ACTID_GNB_WickedTalon) > 5)
+        else if (jobState.effectTime(ACTID_GNB_WickedTalon) > 500)
             return 30000;
         else
             return -100000;
@@ -284,7 +284,7 @@ Action::Timing Action::timingType() const
         CASE(GNB_BrutalShell, Gcd);
         CASE(GNB_NoMercy, Ogcd);
         CASE(GNB_RoughDivide, MultiOgcd);
-        CASE(GNB_GnashingFang, Gcd);
+        CASE(GNB_GnashingFang, GcdExtended);
         CASE(GNB_SavageClaw, Gcd);
         CASE(GNB_WickedTalon, Gcd);
         CASE(GNB_Continuation, Ogcd);
