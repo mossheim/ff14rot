@@ -283,12 +283,14 @@ Rotation pruningOptimalRotation(const Job& job, Time duration, Time gcdDelay, in
                 auto newState = state;
                 auto time = getStartTime(newRot, action, gcdDelay);
                 if (time < duration) {
-                    newRot.entries.push_back({ action, time });
                     newState.advanceTo(time);
                     newState.processAction(action);
-                    pq2.emplace(std::move(newRot), std::move(newState));
-                    if (pq2.size() > maxCandidates)
-                        pq2.pop();
+                    if (newState.damage() >= state.damage()) {
+                        newRot.entries.push_back({ action, time });
+                        pq2.emplace(std::move(newRot), std::move(newState));
+                        if (pq2.size() > maxCandidates)
+                            pq2.pop();
+                    }
                 }
             }
 
