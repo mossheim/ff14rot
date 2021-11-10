@@ -10,3 +10,11 @@ add_executable(FF14Rot
     jobstate.cpp
     types.hpp
     main.cpp)
+
+add_executable(rotation_parser
+    actions.hpp
+    actions.cpp
+    jobstate.hpp
+    jobstate.cpp
+    types.hpp
+    rotation_parser_main.cpp)
