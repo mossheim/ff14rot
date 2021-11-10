@@ -15,7 +15,9 @@ using actions::Action;
 enum ACTID {
     ACTID_DRG_Disembowel,
     ACTID_GNB_SonicBreak,
+    ACTID_GNB_EnhancedSonicBreak,
     ACTID_GNB_BowShock,
+    ACTID_GNB_EnhancedBowShock,
 
     ACTID_DOT_MAX,
 

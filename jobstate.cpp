@@ -23,7 +23,9 @@ Damage JobState::advanceTo(Time time)
     Damage totalDmg = 0;
     totalDmg += applyDot(effects_, delta, ACTID_DRG_Disembowel, 50);
     totalDmg += applyDot(effects_, delta, ACTID_GNB_BowShock, 90);
+    totalDmg += applyDot(effects_, delta, ACTID_GNB_EnhancedBowShock, 90 * 1.2);
     totalDmg += applyDot(effects_, delta, ACTID_GNB_SonicBreak, 90);
+    totalDmg += applyDot(effects_, delta, ACTID_GNB_EnhancedSonicBreak, 90 * 1.2);
 
     for (int i = ACTID_DOT_MAX + 1; i < ACTID_EFFECT_MAX; ++i)
         effects_[i] = std::max(effects_[i] - delta, 0.f);
@@ -107,17 +109,22 @@ void JobState::applyEffects(const Action& action)
             effects_[ACTID_DRG_BloodOfTheDragon] = std::max(30.f, effects_[ACTID_DRG_BloodOfTheDragon] + 10);
         } else if (id == ACTID_GNB_KeenEdge) {
             effects_[ACTID_GNB_KeenEdge] = 15;
-            effects_[ACTID_GNB_BrutalShell] = effects_[ACTID_GNB_GnashingFang] = effects_[ACTID_GNB_SavageClaw] = effects_[ACTID_GNB_WickedTalon] = 0;
+            effects_[ACTID_GNB_BrutalShell] = effects_[ACTID_GNB_GnashingFang] = effects_[ACTID_GNB_SavageClaw] = effects_[ACTID_GNB_WickedTalon] = effects_[ACTID_GNB_Continuation] = 0;
         } else if (id == ACTID_GNB_BrutalShell) {
             effects_[ACTID_GNB_BrutalShell] = 15;
-            effects_[ACTID_GNB_KeenEdge] = effects_[ACTID_GNB_GnashingFang] = effects_[ACTID_GNB_SavageClaw] = effects_[ACTID_GNB_WickedTalon] = 0;
+            effects_[ACTID_GNB_KeenEdge] = effects_[ACTID_GNB_GnashingFang] = effects_[ACTID_GNB_SavageClaw] = effects_[ACTID_GNB_WickedTalon] = effects_[ACTID_GNB_Continuation] = 0;
         } else if (id == ACTID_GNB_SolidBarrel) {
-            effects_[ACTID_GNB_BrutalShell] = effects_[ACTID_GNB_KeenEdge] = effects_[ACTID_GNB_GnashingFang] = effects_[ACTID_GNB_SavageClaw] = effects_[ACTID_GNB_WickedTalon] = 0;
+            effects_[ACTID_GNB_BrutalShell] = effects_[ACTID_GNB_KeenEdge] = effects_[ACTID_GNB_GnashingFang] = effects_[ACTID_GNB_SavageClaw] = effects_[ACTID_GNB_WickedTalon] = effects_[ACTID_GNB_Continuation] = 0;
             addGnbCartridge(effects_);
         } else if (id == ACTID_GNB_BurstStrike) {
             useGnbCartridge(effects_);
+            effects_[ACTID_GNB_GnashingFang] = effects_[ACTID_GNB_SavageClaw] = effects_[ACTID_GNB_WickedTalon] = effects_[ACTID_GNB_Continuation] = 0;
         } else if (id == ACTID_GNB_SonicBreak) {
-            effects_[ACTID_GNB_SonicBreak] = 30;
+            if (effects_[ACTID_GNB_NoMercy])
+                effects_[ACTID_GNB_EnhancedSonicBreak] = 30;
+            else
+                effects_[ACTID_GNB_SonicBreak] = 30;
+            effects_[ACTID_GNB_GnashingFang] = effects_[ACTID_GNB_SavageClaw] = effects_[ACTID_GNB_WickedTalon] = effects_[ACTID_GNB_Continuation] = 0;
         } else if (id == ACTID_GNB_GnashingFang) {
             useGnbCartridge(effects_);
             effects_[ACTID_GNB_GnashingFang] = 15;
@@ -144,7 +151,10 @@ void JobState::applyEffects(const Action& action)
     else if (id == ACTID_GNB_NoMercy)
         effects_[ACTID_GNB_NoMercy] = 20;
     else if (id == ACTID_GNB_BowShock)
-        effects_[ACTID_GNB_BowShock] = 15;
+        if (effects_[ACTID_GNB_NoMercy])
+            effects_[ACTID_GNB_EnhancedBowShock] = 30;
+        else
+            effects_[ACTID_GNB_BowShock] = 30;
     else if (id == ACTID_GNB_Continuation)
         effects_[ACTID_GNB_Continuation] = 0;
     else if (id == ACTID_GNB_Bloodfest)
