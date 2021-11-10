@@ -316,7 +316,7 @@ Rotation calculateOptimalRotation(const Job& job, Time duration, Time gcdDelay, 
     //return greedyOptimalRotation(job, duration, gcdDelay);
 }
 
-void printResult(const Rotation& rotation, Time totalDamage)
+void printResult(const Rotation& rotation, Damage totalDamage)
 {
     int counter = 0;
     std::cout << std::setprecision(2) << std::fixed;

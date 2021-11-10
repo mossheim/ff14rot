@@ -6,7 +6,7 @@
 #include <iostream>
 #include <string>
 
-void printResult(const Rotation& rotation, Time totalDamage)
+void printResult(const Rotation& rotation, Damage totalDamage)
 {
     int counter = 0;
     std::cout << std::setprecision(2) << std::fixed;
