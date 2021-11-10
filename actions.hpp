@@ -39,10 +39,10 @@
 #define ACT_GNB_GnashingFang "((z)) Gnashing Fang [GNB]"
 #define ACT_GNB_SavageClaw "((x)) Savage Claw [GNB]"
 #define ACT_GNB_WickedTalon "((c)) Wicked Talon [GNB]"
-#define ACT_GNB_BowShock "((C)) Bow Shock [GNB]"
+#define ACT_GNB_BowShock "((X)) Bow Shock [GNB]"
 #define ACT_GNB_Continuation "((v)) Continuation [GNB]"
 #define ACT_GNB_Bloodfest "((V)) Bloodfest [GNB]"
-#define ACT_GNB_BlastingZone "((X)) Blasting Zone [GNB]"
+#define ACT_GNB_BlastingZone "((C)) Blasting Zone [GNB]"
 
 Time gcdStartTime(const Rotation& rot, Time gcdDelay);
 Time gcdExtendedCooldownStartTime(const Rotation& rot, Time gcdDelay, Time cdDelay, ACTID actionId);
