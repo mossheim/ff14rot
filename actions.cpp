@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <iostream>
 
+#define UNSAFE
+
 constexpr Time DELAY_TIME = 105;
 
 using namespace std::string_literals;
@@ -122,7 +124,9 @@ std::string_view Action::name() const
         return "XXX";
     }
 
+#ifndef UNSAFE
     error("Name: " + std::to_string(v));
+#endif
     return "UNKNOWN";
 }
 
@@ -139,7 +143,9 @@ Time Action::startTime(const Rotation& rot, Time gcdDelay) const
         return multiCooldownStartTime(rot, cooldownTime(), charges(), v);
     }
 
+#ifndef UNSAFE
     error("StartTime: " + std::string(name()));
+#endif
     return -100;
 }
 
@@ -217,7 +223,9 @@ Damage Action::damage(const JobState& jobState) const
         break;
     }
 
+#ifndef UNSAFE
     error("Damage: " + std::string(name()));
+#endif
     return -1000000;
 }
 
@@ -257,12 +265,16 @@ bool Action::combo(const JobState& jobState) const
             FIXED(GNB_WickedTalon, false);
 #undef FIXED
         default:
+#ifndef UNSAFE
             error("Combo: " + std::string(name()));
+#endif
             return false;
         }
     }
 
+#ifndef UNSAFE
     error("Combo: " + std::string(name()));
+#endif
     return false;
 }
 
@@ -316,7 +328,9 @@ Action::Timing Action::timingType() const
         break;
     }
 
+#ifndef UNSAFE
     error("TimingType: " + std::string(name()));
+#endif
     return Timing::Gcd;
 }
 
@@ -370,18 +384,24 @@ Time Action::cooldownTime() const
         break;
     }
 
+#ifndef UNSAFE
     error("CooldownTime: " + std::string(name()));
+#endif
     return 0;
 }
 
 int Action::charges() const
 {
+#ifdef UNSAFE
+    return 2;
+#else
     if (v == ACTID_GNB_RoughDivide) {
         return 2;
     } else {
         error("Charges: " + std::string(name()));
         return 0;
     }
+#endif
 }
 
 void Action::error(const std::string& msg) const
