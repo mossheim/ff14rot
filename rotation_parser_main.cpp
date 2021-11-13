@@ -11,9 +11,9 @@ void printResult(const Rotation& rotation, Damage totalDamage)
     int counter = 0;
     std::cout << std::setprecision(2) << std::fixed;
     for (auto&& [action, time] : rotation.entries) {
-        std::cout << counter++ << "\t" << time << "\t" << action.name() << std::endl;
+        std::cout << counter++ << "\t" << (time / 100.f) << "\t" << action.name() << std::endl;
     }
-    std::cout << "\nTotal Damage: " << totalDamage << "\n";
+    std::cout << "\nTotal Damage: " << (totalDamage / 100.f) << "\n";
 }
 
 bool fail(const std::string& name)
