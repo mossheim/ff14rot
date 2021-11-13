@@ -39,7 +39,8 @@ Time gcdStartTime(const Rotation& rot, Time gcdDelay)
 
 Time gcdExtendedCooldownStartTime(const Rotation& rot, Time gcdDelay, Time cdDelay, ACTID actionId)
 {
-    return std::max(gcdStartTime(rot, gcdDelay), cooldownStartTime(rot, cdDelay, actionId));
+    auto adjustedCdDelay = cdDelay * gcdDelay / 250;
+    return std::max(gcdStartTime(rot, gcdDelay), cooldownStartTime(rot, adjustedCdDelay, actionId));
 }
 
 Time cooldownStartTime(const Rotation& rot, Time cdDelay, ACTID actionId)
