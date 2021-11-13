@@ -1,5 +1,6 @@
 #include <iomanip>
 #include <iostream>
+#include <map>
 #include <optional>
 #include <queue>
 #include <string>
@@ -243,7 +244,7 @@ Rotation exhaustiveOptimalRotation(const Job& job, Time duration, Time gcdDelay)
 
 // Does a faster search by pruning low-performing candidates after each generation.
 // The criterion to maximize is damage/time with overall sequence time as a secondary criterion.
-Rotation pruningOptimalRotation(const Job& job, Time duration, Time gcdDelay, int maxCandidates)
+auto pruningOptimalRotation(const Job& job, Time duration, Time gcdDelay, int maxCandidates)
 {
     using RotStatePair = std::pair<Rotation, JobState>;
     struct RotStatePairGreater {
@@ -266,7 +267,7 @@ Rotation pruningOptimalRotation(const Job& job, Time duration, Time gcdDelay, in
 
     // Two priority queues for when we move between generations.
     std::priority_queue<RotStatePair, std::vector<RotStatePair>, RotStatePairGreater> pq1, pq2;
-    Rotation bestRot;
+    std::vector<Rotation> bestRots;
     Damage maxDamage = -1;
 
     pq1.emplace();
@@ -279,13 +280,18 @@ Rotation pruningOptimalRotation(const Job& job, Time duration, Time gcdDelay, in
             auto& [rot, state] = pq1.top();
             if (state.damage() > maxDamage) {
                 // std::cerr << "New best: damage = " << state.damage() << std::endl;
-                bestRot = rot;
+                bestRots = { rot };
                 maxDamage = state.damage();
+            } else if (state.damage() == maxDamage) {
+                bestRots.push_back(rot);
             }
 
             for (auto& action : job.actions) {
                 // only allow single weave
                 if (!rot.entries.empty() && !rot.entries.back().action.isGcd() && !action.isGcd())
+                    continue;
+                // first element must be gcd
+                if (rot.entries.empty() && !action.isGcd())
                     continue;
                 // Put all time-viable candidates in pq2 ensuring it doesn't grow too large
                 auto time = action.startTime(rot, gcdDelay);
@@ -309,10 +315,10 @@ Rotation pruningOptimalRotation(const Job& job, Time duration, Time gcdDelay, in
         swap(pq1, pq2);
     }
 
-    return bestRot;
+    return bestRots;
 }
 
-Rotation calculateOptimalRotation(const Job& job, Time duration, Time gcdDelay, int maxCandidates)
+auto calculateOptimalRotation(const Job& job, Time duration, Time gcdDelay, int maxCandidates)
 {
     return pruningOptimalRotation(job, duration, gcdDelay, maxCandidates);
     //return exhaustiveOptimalRotation(job, duration, gcdDelay);
@@ -326,6 +332,49 @@ void printResult(const Rotation& rotation, Damage totalDamage)
     for (auto&& [action, time] : rotation.entries) {
         std::cout << counter++ << "\t" << (time / 100.f) << "\t" << action.name() << std::endl;
     }
+    std::cout << "\nTotal Damage: " << (totalDamage / 100.f) << "\n";
+}
+
+void printResults(const std::vector<Rotation>& rots, Time duration, Time gcdDelay)
+{
+    std::cout << "Total rotations with max damage: " << rots.size() << std::endl;
+    std::cout << "--------------------------------------------------\n";
+    if (rots.empty())
+        return;
+
+    std::map<Time, std::array<int, ACTID_MAX>> actCounts;
+    for (auto& rot : rots) {
+        for (auto& entry : rot.entries) {
+            actCounts[entry.time][entry.action.v]++;
+        }
+    }
+
+    auto totalDamage = calculatePotentialDamage(rots.back(), ACTID_Noop, duration, duration, gcdDelay, false);
+
+    int counter = 0;
+    std::cout << std::setprecision(2) << std::fixed;
+    for (auto&& [time, array] : actCounts) {
+        std::cout << counter++ << '\t' << (time / 100.f) << '\t';
+        std::string s;
+        for (int i = 0; i < ACTID_MAX; ++i) {
+            if (array[i] == rots.size()) {
+                s += Action { ACTID(i) }.name();
+                s += "xx";
+                break;
+            } else if (array[i] > 0) {
+                s += Action { ACTID(i) }.name();
+                s += " (";
+                s += std::to_string(array[i]);
+                s += "), ";
+            }
+        }
+
+        s.pop_back();
+        s.pop_back();
+
+        std::cout << s << '\n';
+    }
+
     std::cout << "\nTotal Damage: " << (totalDamage / 100.f) << "\n";
 }
 
@@ -346,9 +395,15 @@ int main(int argc, char** argv)
 
     if (auto maybeJob = getJob(jobName)) {
         if (duration > 0 && gcdDelay > 0) {
-            auto result = calculateOptimalRotation(*maybeJob, duration, gcdDelay, maxCandidates);
-            auto totalDamage = calculatePotentialDamage(result, ACTID_Noop, duration, duration, gcdDelay, false);
-            printResult(result, totalDamage);
+            auto results = calculateOptimalRotation(*maybeJob, duration, gcdDelay, maxCandidates);
+            printResults(results, duration, gcdDelay);
+            /*
+            for (auto& result : results) {
+                std::cout << "------------------------------" << std::endl;
+                auto totalDamage = calculatePotentialDamage(result, ACTID_Noop, duration, duration, gcdDelay, false);
+                printResult(result, totalDamage);
+            }
+            */
         } else {
             std::cout << "Duration and GCD delay must be > 0" << std::endl;
             return 1;
