@@ -42,13 +42,19 @@ void stripws(std::string& s)
         s.pop_back();
 }
 
-bool parseEntry(RotationEntry& entry)
+bool parseAction(Action& action)
 {
-    std::cin >> entry.time;
     std::string name;
     getline(std::cin, name);
     stripws(name);
-    entry.action = findAction(name);
+    action = findAction(name);
+    return bool(std::cin);
+}
+
+bool parseEntry(RotationEntry& entry)
+{
+    std::cin >> entry.time;
+    parseAction(entry.action);
     return bool(std::cin);
 }
 
@@ -94,9 +100,8 @@ Damage calculatePotentialDamage(const Rotation& rot, const Action& next, Time st
     return accumDmg;
 }
 
-int main()
+int main(int argc, char** argv)
 {
-    RotationEntry entry { ACTID_Noop };
     Rotation rot {};
 
     Time duration;
@@ -105,8 +110,21 @@ int main()
     Time gcdDelay;
     std::cin >> gcdDelay;
 
-    while (parseEntry(entry)) {
-        rot.entries.emplace_back(std::move(entry));
+    if (argc == 2 && argv[1] == std::string("-t")) {
+        {
+            std::string garbage;
+            getline(std::cin, garbage);
+        }
+
+        Action action { ACTID_Noop };
+        while (parseAction(action)) {
+            rot.entries.push_back({ action, action.startTime(rot, gcdDelay) });
+        }
+    } else {
+        RotationEntry entry { ACTID_Noop };
+        while (parseEntry(entry)) {
+            rot.entries.emplace_back(std::move(entry));
+        }
     }
 
     std::cout << "Parsed input:" << std::endl;
