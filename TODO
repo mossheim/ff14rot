@@ -1,5 +1,12 @@
 better logging
 mode where you put in list of actions and see play-by-play of damage output
 configurable delay time
-don't use variants, just store ID and have getters do something?
-    case-switches
+
+time holes:
+- specify target available or not (for bloodfest)
+- only allow no mercy, potion, maybe bloodfest
+- branches: 0-3 actions squeezed before end of hole
+    - a branch for each ordering
+
+future?
+- specify target in melee range or not (for ranged)
