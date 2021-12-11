@@ -5,7 +5,7 @@
 
 #define UNSAFE
 
-constexpr Time DELAY_TIME = 105;
+constexpr Time DELAY_TIME = 80;
 
 using namespace std::string_literals;
 
