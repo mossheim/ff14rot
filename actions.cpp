@@ -115,10 +115,12 @@ std::string_view Action::name() const
         CASE(GNB_Continuation);
         CASE(GNB_Bloodfest);
         CASE(GNB_BlastingZone);
+        CASE(GNB_DoubleDown);
 #undef CASE
     case ACTID_DOT_MAX:
     case ACTID_GNB_Cartridge1:
     case ACTID_GNB_Cartridge2:
+    case ACTID_GNB_Cartridge3:
     case ACTID_GNB_EnhancedBowShock:
     case ACTID_GNB_EnhancedSonicBreak:
     case ACTID_MAX:
@@ -174,13 +176,13 @@ Damage Action::damage(const JobState& jobState) const
         FIXED(DRG_DragonfireDive, 38000);
         FIXED(DRG_BattleLitany, 0);
         FIXED(DRG_Gierskogul, 30000);
-        FIXED(GNB_KeenEdge, 20000);
+        FIXED(GNB_KeenEdge, 17000);
         FIXED(GNB_NoMercy, 0);
         FIXED(GNB_SonicBreak, 30000);
-        FIXED(GNB_RoughDivide, 20000);
-        FIXED(GNB_BowShock, 20000);
+        FIXED(GNB_RoughDivide, 15000);
+        FIXED(GNB_BowShock, 15000);
         FIXED(GNB_Bloodfest, 0);
-        FIXED(GNB_BlastingZone, 80000);
+        FIXED(GNB_BlastingZone, 70000);
         FIXED(DamageBuffPotion30, 0);
 #undef FIXED
 #define COMBO(_n_, _other_, _bare_, _combodmg_) \
@@ -196,29 +198,48 @@ Damage Action::damage(const JobState& jobState) const
 #define GNBCOMBO(_n_, _other_, _dmg_) \
     case ACTID_##_n_:                 \
         return jobState.effectTime(ACTID_##_other_) > 0 ? _dmg_ : -100000
-        GNBCOMBO(GNB_BrutalShell, GNB_KeenEdge, 30000);
-        GNBCOMBO(GNB_SolidBarrel, GNB_BrutalShell, 40000);
-        GNBCOMBO(GNB_BurstStrike, GNB_Cartridge1, 50000);
-        GNBCOMBO(GNB_GnashingFang, GNB_Cartridge1, 45000);
-        GNBCOMBO(GNB_SavageClaw, GNB_GnashingFang, 55000);
-        GNBCOMBO(GNB_WickedTalon, GNB_SavageClaw, 65000);
+        GNBCOMBO(GNB_BrutalShell, GNB_KeenEdge, 26000);
+        GNBCOMBO(GNB_SolidBarrel, GNB_BrutalShell, 34000);
+        GNBCOMBO(GNB_BurstStrike, GNB_Cartridge1, 38000);
+        GNBCOMBO(GNB_GnashingFang, GNB_Cartridge1, 36000);
+        GNBCOMBO(GNB_DoubleDown, GNB_Cartridge2, 120000);
+        GNBCOMBO(GNB_SavageClaw, GNB_GnashingFang, 44000);
+        GNBCOMBO(GNB_WickedTalon, GNB_SavageClaw, 52000);
 #undef GNBCOMBO
     case ACTID_GNB_Continuation:
-        if (jobState.effectTime(ACTID_GNB_Continuation) == 0)
-            return -100000;
-        else if (jobState.effectTime(ACTID_GNB_GnashingFang) > 500)
-            return 26000;
-        else if (jobState.effectTime(ACTID_GNB_SavageClaw) > 500)
-            return 28000;
-        else if (jobState.effectTime(ACTID_GNB_WickedTalon) > 500)
-            return 30000;
-        else
-            return -100000;
+        {
+            if (jobState.effectTime(ACTID_GNB_Continuation) == 0)
+                return -100000;
+
+            ACTID mostRecentActId = ACTID_MAX;
+            Time highestTime = 0;
+            for (auto id : {ACTID_GNB_GnashingFang, ACTID_GNB_SavageClaw, ACTID_GNB_WickedTalon, ACTID_GNB_BurstStrike})
+            {
+                Time actTime = jobState.effectTime(id);
+                if (actTime > standardComboTime - 1000 && actTime > highestTime)
+                {
+                    highestTime = actTime;
+                    mostRecentActId = id;
+                }
+            }
+
+            if (mostRecentActId == ACTID_GNB_GnashingFang)
+                return 18000;
+            else if (mostRecentActId == ACTID_GNB_SavageClaw)
+                return 22000;
+            else if (mostRecentActId == ACTID_GNB_WickedTalon)
+                return 26000;
+            else if (mostRecentActId == ACTID_GNB_BurstStrike)
+                return 18000;
+            else
+                return -100000;
+        }
 
     case ACTID_GNB_EnhancedBowShock:
     case ACTID_GNB_EnhancedSonicBreak:
     case ACTID_GNB_Cartridge1:
     case ACTID_GNB_Cartridge2:
+    case ACTID_GNB_Cartridge3:
     case ACTID_DOT_MAX:
     case ACTID_MAX:
         break;
@@ -264,6 +285,7 @@ bool Action::combo(const JobState& jobState) const
             FIXED(GNB_GnashingFang, false);
             FIXED(GNB_SavageClaw, false);
             FIXED(GNB_WickedTalon, false);
+            FIXED(GNB_DoubleDown, false);
 #undef FIXED
         default:
 #ifndef UNSAFE
@@ -317,6 +339,7 @@ Action::Timing Action::timingType() const
         CASE(GNB_BurstStrike, Gcd);
         CASE(GNB_BlastingZone, Ogcd);
         CASE(GNB_Bloodfest, Ogcd);
+        CASE(GNB_DoubleDown, GcdExtended);
         CASE(Noop, Gcd);
 #undef CASE
 
@@ -324,6 +347,7 @@ Action::Timing Action::timingType() const
     case ACTID_GNB_EnhancedBowShock:
     case ACTID_GNB_Cartridge1:
     case ACTID_GNB_Cartridge2:
+    case ACTID_GNB_Cartridge3:
     case ACTID_DOT_MAX:
     case ACTID_MAX:
         break;
@@ -357,6 +381,7 @@ Time Action::cooldownTime() const
         CASE(GNB_BlastingZone, 3000);
         CASE(GNB_Bloodfest, 9000);
         CASE(GNB_Continuation, 0);
+        CASE(GNB_DoubleDown, 6000);
         CASE(DamageBuffPotion30, 36000);
 #undef CASE
 
@@ -379,6 +404,7 @@ Time Action::cooldownTime() const
     case ACTID_GNB_EnhancedBowShock:
     case ACTID_GNB_Cartridge1:
     case ACTID_GNB_Cartridge2:
+    case ACTID_GNB_Cartridge3:
     case ACTID_DOT_MAX:
     case ACTID_MAX:
     case ACTID_Noop:

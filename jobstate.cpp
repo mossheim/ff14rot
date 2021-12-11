@@ -22,10 +22,10 @@ Damage JobState::advanceTo(Time time)
 
     Damage totalDmg = 0;
     totalDmg += applyDot(effects_, delta, ACTID_DRG_Disembowel, 5000);
-    totalDmg += applyDot(effects_, delta, ACTID_GNB_BowShock, 9000);
-    totalDmg += applyDot(effects_, delta, ACTID_GNB_EnhancedBowShock, 90 * 120);
-    totalDmg += applyDot(effects_, delta, ACTID_GNB_SonicBreak, 9000);
-    totalDmg += applyDot(effects_, delta, ACTID_GNB_EnhancedSonicBreak, 90 * 120);
+    totalDmg += applyDot(effects_, delta, ACTID_GNB_BowShock, 6000);
+    totalDmg += applyDot(effects_, delta, ACTID_GNB_EnhancedBowShock, 60 * 120);
+    totalDmg += applyDot(effects_, delta, ACTID_GNB_SonicBreak, 6000);
+    totalDmg += applyDot(effects_, delta, ACTID_GNB_EnhancedSonicBreak, 60 * 120);
 
     for (int i = ACTID_DOT_MAX + 1; i < ACTID_EFFECT_MAX; ++i)
         effects_[i] = std::max(effects_[i] - delta, 0);
@@ -76,7 +76,9 @@ Damage JobState::processAction(const Action& action)
 
 static void addGnbCartridge(JobState::Effects& effects)
 {
-    if (effects[ACTID_GNB_Cartridge1])
+    if (effects[ACTID_GNB_Cartridge2])
+        effects[ACTID_GNB_Cartridge3] = 360000;
+    else if (effects[ACTID_GNB_Cartridge1])
         effects[ACTID_GNB_Cartridge2] = 360000;
     else
         effects[ACTID_GNB_Cartridge1] = 360000;
@@ -84,7 +86,9 @@ static void addGnbCartridge(JobState::Effects& effects)
 
 static void useGnbCartridge(JobState::Effects& effects)
 {
-    if (effects[ACTID_GNB_Cartridge2])
+    if (effects[ACTID_GNB_Cartridge3])
+        effects[ACTID_GNB_Cartridge3] = 0;
+    else if (effects[ACTID_GNB_Cartridge2])
         effects[ACTID_GNB_Cartridge2] = 0;
     else
         effects[ACTID_GNB_Cartridge1] = 0;
@@ -106,36 +110,41 @@ void JobState::applyEffects(const Action& action)
             // WT and F&C extend BotD by 10 seconds to a max of 30
             effects_[ACTID_DRG_BloodOfTheDragon] = std::max(3000, effects_[ACTID_DRG_BloodOfTheDragon] + 1000);
         } else if (id == ACTID_GNB_KeenEdge) {
-            effects_[ACTID_GNB_KeenEdge] = 1500;
-            effects_[ACTID_GNB_BrutalShell] = effects_[ACTID_GNB_GnashingFang] = effects_[ACTID_GNB_SavageClaw] = effects_[ACTID_GNB_WickedTalon] = effects_[ACTID_GNB_Continuation] = 0;
+            effects_[ACTID_GNB_KeenEdge] = standardComboTime;
+            effects_[ACTID_GNB_BrutalShell] = effects_[ACTID_GNB_GnashingFang] = effects_[ACTID_GNB_SavageClaw] = effects_[ACTID_GNB_WickedTalon] = effects_[ACTID_GNB_BurstStrike] = effects_[ACTID_GNB_Continuation] = 0;
         } else if (id == ACTID_GNB_BrutalShell) {
-            effects_[ACTID_GNB_BrutalShell] = 1500;
-            effects_[ACTID_GNB_KeenEdge] = effects_[ACTID_GNB_GnashingFang] = effects_[ACTID_GNB_SavageClaw] = effects_[ACTID_GNB_WickedTalon] = effects_[ACTID_GNB_Continuation] = 0;
+            effects_[ACTID_GNB_BrutalShell] = standardComboTime;
+            effects_[ACTID_GNB_KeenEdge] = effects_[ACTID_GNB_GnashingFang] = effects_[ACTID_GNB_SavageClaw] = effects_[ACTID_GNB_WickedTalon] = effects_[ACTID_GNB_BurstStrike] = effects_[ACTID_GNB_Continuation] = 0;
         } else if (id == ACTID_GNB_SolidBarrel) {
-            effects_[ACTID_GNB_BrutalShell] = effects_[ACTID_GNB_KeenEdge] = effects_[ACTID_GNB_GnashingFang] = effects_[ACTID_GNB_SavageClaw] = effects_[ACTID_GNB_WickedTalon] = effects_[ACTID_GNB_Continuation] = 0;
+            effects_[ACTID_GNB_BrutalShell] = effects_[ACTID_GNB_KeenEdge] = effects_[ACTID_GNB_GnashingFang] = effects_[ACTID_GNB_SavageClaw] = effects_[ACTID_GNB_WickedTalon] = effects_[ACTID_GNB_BurstStrike] = effects_[ACTID_GNB_Continuation] = 0;
             addGnbCartridge(effects_);
         } else if (id == ACTID_GNB_BurstStrike) {
             useGnbCartridge(effects_);
-            effects_[ACTID_GNB_GnashingFang] = effects_[ACTID_GNB_SavageClaw] = effects_[ACTID_GNB_WickedTalon] = effects_[ACTID_GNB_Continuation] = 0;
+            effects_[ACTID_GNB_BurstStrike] = standardComboTime;
+            effects_[ACTID_GNB_Continuation] = 1000;
         } else if (id == ACTID_GNB_SonicBreak) {
             if (effects_[ACTID_GNB_NoMercy])
                 effects_[ACTID_GNB_EnhancedSonicBreak] = 3000;
             else
                 effects_[ACTID_GNB_SonicBreak] = 3000;
-            effects_[ACTID_GNB_GnashingFang] = effects_[ACTID_GNB_SavageClaw] = effects_[ACTID_GNB_WickedTalon] = effects_[ACTID_GNB_Continuation] = 0;
+            effects_[ACTID_GNB_Continuation] = 0;
         } else if (id == ACTID_GNB_GnashingFang) {
             useGnbCartridge(effects_);
-            effects_[ACTID_GNB_GnashingFang] = 1500;
+            effects_[ACTID_GNB_GnashingFang] = standardComboTime;
             effects_[ACTID_GNB_Continuation] = 1000;
             effects_[ACTID_GNB_SavageClaw] = effects_[ACTID_GNB_WickedTalon] = 0;
         } else if (id == ACTID_GNB_SavageClaw) {
-            effects_[ACTID_GNB_SavageClaw] = 1500;
+            effects_[ACTID_GNB_SavageClaw] = standardComboTime;
             effects_[ACTID_GNB_Continuation] = 1000;
             effects_[ACTID_GNB_GnashingFang] = effects_[ACTID_GNB_WickedTalon] = 0;
         } else if (id == ACTID_GNB_WickedTalon) {
-            effects_[ACTID_GNB_WickedTalon] = 1500;
+            effects_[ACTID_GNB_WickedTalon] = standardComboTime;
             effects_[ACTID_GNB_Continuation] = 1000;
             effects_[ACTID_GNB_GnashingFang] = effects_[ACTID_GNB_SavageClaw] = 0;
+        } else if (id == ACTID_GNB_DoubleDown) {
+            useGnbCartridge(effects_);
+            useGnbCartridge(effects_);
+            effects_[ACTID_GNB_Continuation] = 0;
         }
         effects_[ACTID_DRG_LifeSurge] = 0;
     } else if (id == ACTID_DRG_LifeSurge)
@@ -156,7 +165,7 @@ void JobState::applyEffects(const Action& action)
     else if (id == ACTID_GNB_Continuation)
         effects_[ACTID_GNB_Continuation] = 0;
     else if (id == ACTID_GNB_Bloodfest)
-        effects_[ACTID_GNB_Cartridge1] = effects_[ACTID_GNB_Cartridge2] = 360000;
+        effects_[ACTID_GNB_Cartridge1] = effects_[ACTID_GNB_Cartridge2] = effects_[ACTID_GNB_Cartridge3] = 360000;
     else if (id == ACTID_DamageBuffPotion30)
         effects_[ACTID_DamageBuffPotion30] = 3000;
 }

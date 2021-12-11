@@ -54,7 +54,7 @@ std::optional<Job> getJob(const std::string& jobName)
             ACTID_DRG_FangAndClaw,
             ACTID_DRG_Gierskogul,
         } };
-    else if (jobName == "GNB80_Single")
+    else if (jobName == "GNB90_Single")
         return Job { {
             ACTID_DamageBuffPotion30,
             ACTID_GNB_KeenEdge,
@@ -71,6 +71,7 @@ std::optional<Job> getJob(const std::string& jobName)
             ACTID_GNB_Continuation,
             ACTID_GNB_Bloodfest,
             ACTID_GNB_BlastingZone,
+            ACTID_GNB_DoubleDown,
         } };
     else
         return {};
@@ -380,7 +381,7 @@ void printResults(const std::vector<Rotation>& rots, Time duration, Time gcdDela
 
 int main(int argc, char** argv)
 {
-    std::string usage = "Usage:\n  "s + argv[0] + " <job> <duration in seconds> <GCD delay> [<num candidates = 500>]";
+    std::string usage = "Usage:\n  "s + argv[0] + " <job> <duration in seconds> <GCD delay> [<num candidates = 5000>]";
     if (argc != 4 && argc != 5) {
         std::cout << usage << std::endl;
         return 1;

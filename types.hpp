@@ -9,6 +9,8 @@ struct Rotation;
 struct RotationEntry;
 struct JobState;
 
+constexpr static Time standardComboTime = 3000;
+
 namespace actions {
 struct Action;
 }
@@ -36,9 +38,11 @@ enum ACTID : uint8_t {
     ACTID_GNB_GnashingFang,
     ACTID_GNB_SavageClaw,
     ACTID_GNB_WickedTalon,
+    ACTID_GNB_BurstStrike,
     ACTID_GNB_Continuation,
     ACTID_GNB_Cartridge1,
     ACTID_GNB_Cartridge2,
+    ACTID_GNB_Cartridge3,
 
     ACTID_DamageBuffPotion30,
 
@@ -58,9 +62,9 @@ enum ACTID : uint8_t {
     ACTID_DRG_Gierskogul,
 
     ACTID_GNB_SolidBarrel,
-    ACTID_GNB_BurstStrike,
     ACTID_GNB_BlastingZone,
     ACTID_GNB_Bloodfest,
+    ACTID_GNB_DoubleDown,
 
     ACTID_MAX,
 };

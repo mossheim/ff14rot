@@ -37,12 +37,13 @@
 #define ACT_GNB_SonicBreak "((Z)) Sonic Break [GNB]"
 #define ACT_GNB_RoughDivide "((g)) Rough Divide [GNB]"
 #define ACT_GNB_GnashingFang "((z)) Gnashing Fang [GNB]"
-#define ACT_GNB_SavageClaw "((x)) Savage Claw [GNB]"
-#define ACT_GNB_WickedTalon "((c)) Wicked Talon [GNB]"
+#define ACT_GNB_SavageClaw "((z)) Savage Claw [GNB]"
+#define ACT_GNB_WickedTalon "((z)) Wicked Talon [GNB]"
 #define ACT_GNB_BowShock "((X)) Bow Shock [GNB]"
-#define ACT_GNB_Continuation "((v)) Continuation [GNB]"
+#define ACT_GNB_Continuation "((c)) Continuation [GNB]"
 #define ACT_GNB_Bloodfest "((V)) Bloodfest [GNB]"
 #define ACT_GNB_BlastingZone "((C)) Blasting Zone [GNB]"
+#define ACT_GNB_DoubleDown "((x)) Double Down [GNB]"
 
 Time gcdStartTime(const Rotation& rot, Time gcdDelay);
 Time gcdExtendedCooldownStartTime(const Rotation& rot, Time gcdDelay, Time cdDelay, ACTID actionId);
