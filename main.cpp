@@ -288,8 +288,8 @@ auto pruningOptimalRotation(const Job& job, Time duration, Time gcdDelay, int ma
             }
 
             for (auto& action : job.actions) {
-                // only allow single weave
-                if (!rot.entries.empty() && !rot.entries.back().action.isGcd() && !action.isGcd())
+                // only allow single or double weave
+                if (rot.entries.size() > 1 && !rot.entries.back().action.isGcd() && !action.isGcd() && !rot.entries[rot.entries.size() - 2].action.isGcd())
                     continue;
                 // first element must be gcd
                 if (rot.entries.empty() && !action.isGcd())
